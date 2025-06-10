@@ -40,19 +40,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      # install deps (cache wheels for speed)
-      - name: Install dependencies
+      # Install dependencies **inside the real project root**
+      - name: Install deps + project
+        working-directory: SmartPhotoMultiTag_pipeline
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -e .               # editable install adds src/ to PYTHONPATH
 
       # run your script, wiring workflow-dispatch inputs
       - name: Run pipeline
+        working-directory: SmartPhotoMultiTag_pipeline 
         env:
           MAX_SAMPLES: ${{ github.event.inputs.max-samples || '50' }}
           REPORT:      ${{ github.event.inputs.report      || 'false' }}
         run: |
-          # PowerShell-native conditional for --report flag
           $reportFlag = if ($env:REPORT -eq 'true') { '--report' } else { '' }
 
           python scripts/run_pipeline.py `
