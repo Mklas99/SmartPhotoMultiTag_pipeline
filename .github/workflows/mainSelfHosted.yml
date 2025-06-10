@@ -1,12 +1,9 @@
-name: Photo-Tag pipeline
+name: Photo-Tag self-hosted pipeline
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - master
   workflow_dispatch:
     inputs:
       max-samples:
