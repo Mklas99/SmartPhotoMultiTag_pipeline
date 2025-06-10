@@ -11,7 +11,7 @@ from src.utils.plot import save_loss_plot
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def run_training(epochs: int | None = None):
+def run_training(epochs: int | None = None, generate_report: bool = False):
     # ---- configs ----
     mcfg = ModelConfig()
     ocfg = OptimConfig()
@@ -24,6 +24,8 @@ def run_training(epochs: int | None = None):
     # ---- MLflow ----
     mlflow.start_run()
     mlflow.log_params(all_configs())
+    if generate_report:
+        mlflow.log_param("detailed_report", True)
 
     # ---- data ----
     train_loader, val_loader = load_data()
@@ -82,10 +84,12 @@ def run_training(epochs: int | None = None):
     sample_batch = sample_batch.to(DEVICE)
 
     # ---- final model ----
+    # Convert your torch tensor to numpy before logging
+    input_example_numpy = sample_batch.detach().cpu().numpy()
     mlflow.pytorch.log_model(
-        pytorch_model=model,
-        artifact_path="model",  # You can keep using this or switch to 'name'
-        input_example=sample_batch
+        model,
+        "model",
+        input_example=input_example_numpy,  # Use numpy array instead of torch.Tensor
     )
     mlflow.end_run()
 
@@ -93,5 +97,6 @@ if __name__ == "__main__":
     import argparse, os
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=None, help="Override epochs")
+    parser.add_argument("--report", action="store_true", help="Generate detailed report")
     args = parser.parse_args()
-    run_training(args.epochs)
+    run_training(args.epochs, generate_report=args.report)

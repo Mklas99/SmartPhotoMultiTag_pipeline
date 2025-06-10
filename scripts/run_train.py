@@ -1,16 +1,15 @@
-import argparse
-import sys
 import os
+import sys
 
-# Add the project root to Python's module search path
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(script_dir, '..'))
-sys.path.insert(0, project_root)
+# Add the project root directory to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.train import run_training
 
 if __name__ == "__main__":
+    import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", type=int, default=1, help="Epochs for quick run")
+    parser.add_argument("--epochs", type=int, default=None, help="Override epochs")
+    parser.add_argument("--report", action="store_true", help="Generate detailed report")
     args = parser.parse_args()
-    run_training(args.epochs)
+    run_training(args.epochs, generate_report=args.report)
