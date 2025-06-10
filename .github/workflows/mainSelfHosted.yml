@@ -25,7 +25,7 @@ jobs:
       # - gpu                   
     defaults:
       run:
-        shell: bash
+        shell: pwsh
 
     steps:
       # checkout source
