@@ -3,6 +3,9 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "smart_photo_multitag"
-version = "0.0.0"
+name = "SmartPhotoMultiTag"
+version = "0.1.0"
+description = "..."
+
+[tool.setuptools]
 packages = ["src"]
