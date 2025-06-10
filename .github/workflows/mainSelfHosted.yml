@@ -26,7 +26,8 @@ jobs:
     defaults:
       run:
         shell: powershell
-
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       # checkout source
       - uses: actions/checkout@v4
