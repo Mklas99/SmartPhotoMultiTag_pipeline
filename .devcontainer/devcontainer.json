@@ -1,0 +1,51 @@
+{
+  "name": "photo-tag-pipeline",
+  // Build from local Dockerfile that starts with
+  //   FROM python:3.11-slim-bullseye
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  // Optional: give the container Docker-in-Docker support
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [
+    5000,
+    5151
+  ],
+  "postCreateCommand": "pip install -r requirements.txt",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-python.black-formatter",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "5000": {
+      "label": "MLflow UI",
+      "onAutoForward": "openBrowser"
+    },
+    "5151": {
+      "label": "FiftyOne App",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "containerEnv": {
+    "MLFLOW_HOST": "0.0.0.0",
+    "FIFTYONE_DEFAULT_APP_PORT": "5151",
+    "FIFTYONE_DEFAULT_APP_ADDRESS": "0.0.0.0"
+  }
+}

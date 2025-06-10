@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint
+        run: |
+          black --check .
+          isort --profile=black --check-only .
+          flake8 .
+
+      - name: Tests
+        run: pytest -q
+
+      - name: Quick train + eval
+        run: |
+          python scripts/run_pipeline.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ml-artifacts
+          path: |
+            checkpoints/
+            results/
+            mlruns/
