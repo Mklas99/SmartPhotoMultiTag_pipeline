@@ -1,0 +1,22 @@
+# .github/workflows/pipeline.yml
+name: Photo-Tag pipeline
+
+on:
+  push:
+    branches:        # object → key = branches
+      - main         # array is fine *inside* the object
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:   # manual trigger
+    inputs:
+      max-samples:
+        description: "Limit training samples"
+        required: false
+        default: "50"
+      report:
+        type: boolean
+        description: "Generate evaluation report?"
+        default: true
