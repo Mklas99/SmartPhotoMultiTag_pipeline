@@ -21,7 +21,11 @@ on:
 # ────────────────────────────
 jobs:
   run-pipeline:
-    runs-on: ubuntu-latest          # or windows-latest if you prefer
+    runs-on:  # <- label filter
+      - self-hosted             
+      - linux                 
+      - x64                     
+      # - gpu    
     defaults:
       run:
         shell: bash
