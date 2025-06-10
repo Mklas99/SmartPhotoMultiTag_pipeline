@@ -2,7 +2,7 @@ import mlflow
 import torch
 from dataclasses import asdict
 from tqdm.auto import tqdm
-
+import os
 from src.config import ModelConfig, OptimConfig, TrainConfig, CHECKPOINT_DIR, all_configs
 from src.data.loader import load_data
 from src.models.model import build_model
@@ -76,9 +76,17 @@ def run_training(epochs: int | None = None):
     os.makedirs("results", exist_ok=True)
     save_loss_plot(train_losses, val_losses, plot_path)
     mlflow.log_artifact(plot_path)
+    
+    # Get a batch of sample data for the input example
+    sample_batch, _ = next(iter(train_loader))
+    sample_batch = sample_batch.to(DEVICE)
 
     # ---- final model ----
-    mlflow.pytorch.log_model(model, "model")
+    mlflow.pytorch.log_model(
+        pytorch_model=model,
+        artifact_path="model",  # You can keep using this or switch to 'name'
+        input_example=sample_batch
+    )
     mlflow.end_run()
 
 if __name__ == "__main__":
