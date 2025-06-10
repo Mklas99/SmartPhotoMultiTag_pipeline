@@ -3,14 +3,12 @@ name: Photo-Tag pipeline
 
 on:
   push:
-    branches:        # object → key = branches
-      - main         # array is fine *inside* the object
-
+    branches:
+      - main
   pull_request:
     branches:
       - main
-
-  workflow_dispatch:   # manual trigger
+  workflow_dispatch:
     inputs:
       max-samples:
         description: "Limit training samples"
@@ -20,3 +18,33 @@ on:
         type: boolean
         description: "Generate evaluation report?"
         default: true
+
+# ────────────────────────────
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest          # or windows-latest if you prefer
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # 1️⃣  checkout source
+      - uses: actions/checkout@v4
+
+      # 2️⃣  set up Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3️⃣  install deps (cache wheels for speed)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4️⃣  run your script, wiring workflow-dispatch inputs
+      - name: Run pipeline
+        run: |
+          python scripts/run_pipeline.py \
+            --max-samples "${{ github.event.inputs.max-samples || '500' }}" \
+            $([[ "${{ github.event.inputs.report }}" == 'true' ]] && echo --report)
