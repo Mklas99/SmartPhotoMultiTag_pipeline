@@ -25,7 +25,8 @@ jobs:
       - self-hosted             
       - linux                 
       - x64                     
-      # - gpu    
+      # - gpu
+      
     defaults:
       run:
         shell: bash
