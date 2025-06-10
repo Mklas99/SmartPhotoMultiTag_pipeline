@@ -44,7 +44,13 @@ jobs:
 
       # run your script, wiring workflow-dispatch inputs
       - name: Run pipeline
+        env:
+          MAX_SAMPLES: ${{ github.event.inputs.max-samples || '50' }}
+          REPORT:      ${{ github.event.inputs.report      || 'false' }}
         run: |
-          python scripts/run_pipeline.py \
-            --max-samples "${{ github.event.inputs.max-samples || '50' }}" \
-            $([[ "${{ github.event.inputs.report }}" == 'true' ]] && echo --report)
+          # PowerShell-native conditional for --report flag
+          $reportFlag = if ($env:REPORT -eq 'true') { '--report' } else { '' }
+
+          python scripts/run_pipeline.py `
+            --max-samples $env:MAX_SAMPLES `
+            $reportFlag
