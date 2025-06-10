@@ -26,8 +26,11 @@ jobs:
     defaults:
       run:
         shell: powershell
+    # ─── Make src.* importable everywhere ────────────────
     env:
-      PYTHONPATH: ${{ github.workspace }}
+      PYTHONPATH: >
+        ${{ github.workspace }};
+        ${{ github.workspace }}\SmartPhotoMultiTag_pipeline
     steps:
       # checkout source
       - uses: actions/checkout@v4
