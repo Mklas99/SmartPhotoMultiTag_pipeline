@@ -4,7 +4,6 @@ from typing import Dict, List, Literal, Optional  # Import Optional
 from torchvision import transforms as T
 
 # -------- Project Root --------
-# Assuming this file (config.py) is in /src, the project root is its parent's parent
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 IMAGE_CNT: int = 10
@@ -21,9 +20,9 @@ DEFAULT_CLASSES: List[str] = [
 
 DATASET_ROOT = PROJECT_ROOT / "src" / "data" / "coco"
 DATASET_DIR = PROJECT_ROOT / "src" / "data" / "coco"
-META_PATH = PROJECT_ROOT / "src" / "data" / "coco" / "dataset_metadata.json"     # Metadata summary
+META_PATH = PROJECT_ROOT / "src" / "data" / "coco" / "dataset_metadata.json" # Metadata summary
 NOTEBOOK_PATH = PROJECT_ROOT / "notebooks" # Jupytext file
-HTML_REPORT_PATH = NOTEBOOK_PATH.with_suffix(".html")           # nbconvert output
+HTML_REPORT_PATH = NOTEBOOK_PATH.with_suffix(".html") # nbconvert output
 
 # Where to store checkpoints
 CHECKPOINT_DIR = PROJECT_ROOT / "checkpoints"
@@ -58,8 +57,8 @@ val_transforms = T.Compose([
 class ModelConfig:
     backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet18"
     pretrained: bool = True
-    freeze_backbone: bool = False      # freeze all BUT final block + head
-    drop_rate: float = 0.0             # dropout before classifier (if any)
+    freeze_backbone: bool = False     
+    drop_rate: float = 0.0            
 
 @dataclass
 class OptimConfig:

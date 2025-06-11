@@ -1,18 +1,16 @@
 """
-Small helpers: seeding, meters, plot saving.  Keeps train.py tidy.
+Small helpers: seeding, meters, plot saving.
 """
 from __future__ import annotations
 
 import random
 import string
 from pathlib import Path
-from typing import Tuple, List
-
+from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from sklearn.metrics import precision_recall_curve, confusion_matrix
-
 from src import config
 from src.data.cocodataset import CocoDataset
 
@@ -32,7 +30,6 @@ def _tmp_png(prefix: str) -> Path:
     path = config.RESULTS_DIR / "plots" / Path(f"{prefix}_{rnd}.png")
     return path
 
-
 def save_confusion_matrix(y_true, y_score, num_classes) -> Path:
     preds = (y_score >= 0.5).astype(int)
     cm = confusion_matrix(y_true.reshape(-1), preds.reshape(-1))
@@ -44,7 +41,6 @@ def save_confusion_matrix(y_true, y_score, num_classes) -> Path:
     fig.savefig(path)
     plt.close(fig)
     return path
-
 
 def save_roc_curves(y_true, y_score) -> Path:
     fig, ax = plt.subplots()
@@ -62,9 +58,8 @@ def save_roc_curves(y_true, y_score) -> Path:
     plt.close(fig)
     return path
 
-
 def save_sample_preds(model, val_ds: CocoDataset, device, class_names: List[str], n: int = 2) -> Path:
-    """Save a grid of n validation images + predicted top-5 tags."""
+    """Save a grid of n validation images + predicted top-5(max) tags."""
     # First, ensure 'n' is not negative. and avlidation dataset is not empty.
     if len(val_ds) == 0:
         print("Warning: Validation dataset is empty. No samples will be selected for plotting.")
@@ -94,7 +89,7 @@ def save_sample_preds(model, val_ds: CocoDataset, device, class_names: List[str]
         np_img = img_t.permute(1, 2, 0).numpy() * std + mean
         ax.imshow(np.clip(np_img, 0, 1))
         ax.axis("off")
-        ax.set_title(f"Top-5: {', '.join(top5_names)}", fontsize=8)
+        ax.set_title(f"Top: {', '.join(top5_names)}", fontsize=8)
 
     path = _tmp_png("samples")
     fig.tight_layout()

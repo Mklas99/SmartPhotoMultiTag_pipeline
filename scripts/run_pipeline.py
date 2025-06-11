@@ -28,10 +28,5 @@ if __name__ == "__main__":
     
     print(f"Running command: {' '.join(cmd)}")
     subprocess.check_call(cmd)
-
-    # Placeholder for evaluation script if it needs to be run as part of the pipeline
-    # print("Running evaluation...")
-    # eval_cmd = [sys.executable, "src/evaluate.py"] # Assuming evaluate.py is runnable directly
-    # subprocess.check_call(eval_cmd)
     
     print("Pipeline finished.")

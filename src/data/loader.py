@@ -4,7 +4,7 @@ from __future__ import annotations
 import json, yaml, logging, datetime
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
-
+import random
 import fiftyone as fo
 import fiftyone.zoo as foz
 import fiftyone.types as fot
@@ -21,10 +21,7 @@ from .cocodataset import CocoDataset, collate_fn
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# 1. Download / load dataset -------------------------------------------------
-# ---------------------------------------------------------------------------
-
+# ----------------------------- Download / load dataset -----------------------------
 def load_dataset(
     dataset_name: str = "coco-2017",
     splits: Tuple[str, ...] = ("train", "validation", "test"),
@@ -76,10 +73,7 @@ def load_dataset(
     logger.info("Loaded %d samples in total", len(dataset))
     return dataset
 
-# ---------------------------------------------------------------------------
-# 2. Filter labels post‑hoc --------------------------------------------------
-# ---------------------------------------------------------------------------
-
+# ----------------------------- Filter labels -----------------------------
 def filter_categories(dataset: fo.Dataset, classes: List[str]) -> fo.DatasetView:
     """Return a view containing only labels whose class is in *classes*."""
     logger.info("Filtering dataset to %d target classes", len(classes))
@@ -87,16 +81,11 @@ def filter_categories(dataset: fo.Dataset, classes: List[str]) -> fo.DatasetView
     logger.info("View retains %d samples after label filtering", len(view))
     return view
 
-# ---------------------------------------------------------------------------
-# 3. Deterministic random split ---------------------------------------------
-# ---------------------------------------------------------------------------
-
+# ----------------------------- Deterministic random split -----------------------------
 def make_splits(dataset: fo.Dataset, seed: int = 42) -> Dict[str, fo.DatasetView]:
     """Tag samples train/val/test ≈ 70/20/10 and return views."""
     logger.info("Creating train/val/test tags (seed=%d)…", seed)
     
-    # Compatible approach with FiftyOne 1.5.2
-    import random
     random.seed(seed)
     
     # Get all sample IDs and shuffle them
@@ -120,10 +109,7 @@ def make_splits(dataset: fo.Dataset, seed: int = 42) -> Dict[str, fo.DatasetView
     
     return {tag: dataset.match_tags(tag) for tag in ("train", "val", "test")}
 
-# ---------------------------------------------------------------------------
-# 4. COCO‑format export ------------------------------------------------------
-# ---------------------------------------------------------------------------
-
+# ----------------------------- COCO‑format export -----------------------------
 def export_splits(views: Dict[str, fo.DatasetView], export_root: Path = DATASET_ROOT) -> None:
     export_root.mkdir(parents=True, exist_ok=True)
     for split, view in views.items():
@@ -133,14 +119,11 @@ def export_splits(views: Dict[str, fo.DatasetView], export_root: Path = DATASET_
             export_dir=str(out_dir),
             dataset_type=fot.COCODetectionDataset,
             label_field="ground_truth",
-            export_media=True,  # Changed from "copy" to True for FiftyOne 1.5.2 compatibility
+            export_media=True,
             overwrite=True,
         )
 
-# ---------------------------------------------------------------------------
-# 5. Metadata serialisation --------------------------------------------------
-# ---------------------------------------------------------------------------
-
+# ----------------------------- Metadata serialisation -----------------------------
 def write_metadata(dataset: fo.Dataset, views: Dict[str, fo.DatasetView], path: Path = META_PATH) -> None:
     # Ensure the parent directory exists
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -158,10 +141,7 @@ def write_metadata(dataset: fo.Dataset, views: Dict[str, fo.DatasetView], path: 
     path.write_text(json.dumps(meta, indent=2))
     logger.info("Metadata saved → %s", path)
 
-# ---------------------------------------------------------------------------
-# 6. Convenience one‑shot helper --------------------------------------------
-# ---------------------------------------------------------------------------
-
+# ----------------------------- Convenience one‑shot helper -----------------------------
 def prepare_dataset(
     classes: List[str] | None = None,
     max_samples: int = 500,
@@ -170,7 +150,7 @@ def prepare_dataset(
     """Fully run acquisition → filter → split → export → metadata."""
     dataset = load_dataset(classes=classes, max_samples=max_samples, seed=seed)
     view = filter_categories(dataset, classes or DEFAULT_CLASSES)
-    views = make_splits(view._dataset, seed=seed)  # tag on original dataset so FO App shows tags
+    views = make_splits(view._dataset, seed=seed)
     export_splits(views)
     write_metadata(dataset, views)
     return views

@@ -8,14 +8,11 @@ import numpy as np
 from typing import Tuple, Dict
 from tqdm import tqdm
 import mlflow
-
-# Import from src path
-from src import config
-from src.models.metrics import macro_f1, micro_f1, precision_at_k, mAP, roc_auc
+from src.utils.metrics import macro_f1, micro_f1, precision_at_k, mAP, roc_auc
 from src.utils.plot import save_confusion_matrix, save_roc_curves
 from src.utils.average_meter import AverageMeter
 from src.config import OptimConfig
-
+import warnings
 
 def _build_optimizer(net: nn.Module, cfg: OptimConfig):
     params = (p for p in net.parameters() if p.requires_grad)
@@ -29,7 +26,7 @@ def _build_optimizer(net: nn.Module, cfg: OptimConfig):
             weight_decay=cfg.weight_decay,
             nesterov=True,
         )
-    else:  # type: ignore[unreachable]
+    else:
         raise ValueError(cfg.optim)
 
 def _build_scheduler(opt, cfg: OptimConfig):
@@ -49,7 +46,6 @@ def _run_one_epoch(
     device,
     train: bool = True,
 ) -> float:
-    import warnings # Ensure warnings is imported
     net.train(train)
     meter = AverageMeter()
 
@@ -61,7 +57,7 @@ def _run_one_epoch(
             )
             continue
 
-        imgs, labels = batch_data # Unpack after None check
+        imgs, labels = batch_data # Unpack
         imgs, labels = imgs.to(device), labels.to(device)
         logits = net(imgs)
         loss = F.binary_cross_entropy_with_logits(logits, labels)
@@ -90,7 +86,6 @@ def _validate(
     device,
     k: int,
 ) -> Tuple[float, Dict[str, float]]:
-    import warnings # Ensure warnings is imported
     net.eval()
     all_losses, all_preds_scores, all_gts = [], [], []
 
@@ -102,7 +97,7 @@ def _validate(
             )
             continue
 
-        imgs, labels = batch_data # Unpack after None check
+        imgs, labels = batch_data # Unpack
         imgs, labels = imgs.to(device), labels.to(device)
         logits = net(imgs)
         loss = F.binary_cross_entropy_with_logits(logits, labels)
@@ -136,7 +131,7 @@ def _validate(
     # diagnostic plots
     try:
         cm_img = save_confusion_matrix(y_true, y_score, num_classes=actual_num_classes)
-        roc_img = save_roc_curves(y_true, y_score) # Pass num_classes if your function expects it
+        roc_img = save_roc_curves(y_true, y_score)
         if mlflow.active_run(): # Check if there's an active MLflow run
             mlflow.log_artifact(str(cm_img))
             mlflow.log_artifact(str(roc_img))

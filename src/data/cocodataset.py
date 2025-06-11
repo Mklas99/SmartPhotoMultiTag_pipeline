@@ -3,7 +3,7 @@ import json
 import warnings
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict
-
+from src import config 
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset
@@ -52,7 +52,6 @@ class CocoDataset(Dataset):
         )
 
         if self.transform is None:
-            from src import config  # assume src.config has train_transforms and val_transforms
             if "train" in self.annotations_file.name.lower():
                 self.transform = config.train_transforms
             else:

@@ -1,14 +1,13 @@
 import mlflow, torch, numpy as np
-from src.models.model import build_model
-from src.models.metrics import micro_f1
-from src.config import CHECKPOINT_DIR, ModelConfig
+from src.models.basic_model import BasicMLC
+from src.utils.metrics import micro_f1
+from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, ModelConfig
 from src.data.loader import load_data
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def run_evaluation():
-    mcfg = ModelConfig()
-    model = build_model(mcfg).to(DEVICE)
+    model = BasicMLC(DEFAULT_CLASSES).to(DEVICE)
     ckpt = CHECKPOINT_DIR / "best_model.pth"
     if not ckpt.exists():
         raise FileNotFoundError("Checkpoint not found; run training first.")

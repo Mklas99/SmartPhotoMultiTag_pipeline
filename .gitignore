@@ -8,13 +8,12 @@ __pycache__/
 env/
 
 # Data and outputs
-notebooks/.data/coco_export
+# notebooks/.data/coco_export
 src/data/coco/
 logs/
 checkpoints/
 results/
-
-# MLflow tracking logs
+MLflow tracking logs
 mlruns/
 mlruns.db
 

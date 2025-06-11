@@ -28,7 +28,7 @@ from src.config import (
 )
 from src.data.loader import load_data, CocoDataset, collate_fn
 from src.models.basic_model import BasicMLC
-from src.models.model_PhotoTagNet import PhotoTagNet
+from src.models.PhotoTagNet import PhotoTagNet
 from src.utils.seed import set_seed
 from src.utils.plot import save_loss_plot, save_sample_preds
 from src.utils.train_util import _run_one_epoch, _validate,  _build_optimizer, _build_scheduler
@@ -61,8 +61,8 @@ def run_training(
     # ---- MLflow ----
     mlflow.set_experiment("photo-tagger")
     with mlflow.start_run(run_name="photo-tagger" + time.strftime("%Y%m%d-%H%M%S")):
-        # ---------------------------------------------------------------- #
-        # 1.  DATA & DATALOADERS                                           
+        
+        # ----------------------------- DATA & DATALOADERS -----------------------------
         num_classes = config.get_num_classes(custom_classes)
         train_ds = CocoDataset(
             DATASET_ROOT / "train/data", 
@@ -94,9 +94,7 @@ def run_training(
             #pin_memory=True,
         )
 
-        # ---------------------------------------------------------------- #
-        # 2.  MODEL, OPT & SCHEDULER        
-
+        # ----------------------------- MODEL, OPT & SCHEDULER -----------------------------
         print("Building model, optimizer and scheduler...")                               
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         #net = PhotoTagNet(model_cfg, num_classes).to(device)
@@ -106,14 +104,12 @@ def run_training(
         opt = _build_optimizer(net, optim_cfg)
         scheduler = _build_scheduler(opt, optim_cfg)
 
-        # ---------------------------------------------------------------- #
-        # 3.  LOG PARAMS   
+        # ----------------------------- LOG PARAMS -----------------------------
         print("Logging parameters to MLflow...")                                                
         mlflow.log_params(config.as_flat_dict())
         mlflow.log_params({"num_classes": num_classes, **model_cfg.__dict__})
 
-        # ---------------------------------------------------------------- #
-        # 4.  TRAIN LOOP
+        # ----------------------------- TRAIN LOOP -----------------------------
         print("Starting training loop...")                           
         best_val = -np.inf
         patience_left = train_cfg.early_stop_patience
