@@ -45,6 +45,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -e .  # install local src package
 
       # run your script, wiring workflow-dispatch inputs
       - name: Run pipeline

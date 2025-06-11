@@ -87,10 +87,15 @@ def run_training(epochs: int | None = None, generate_report: bool = False):
     # Convert your torch tensor to numpy before logging
     input_example_numpy = sample_batch.detach().cpu().numpy()
     mlflow.pytorch.log_model(
-        model,
-        "model",
+        model, 
+        name="model",
         input_example=input_example_numpy,  # Use numpy array instead of torch.Tensor
     )
+    # Save the final model for later prediction use
+    final_model_path = CHECKPOINT_DIR / "final_model.pth"
+    torch.save(model.state_dict(), final_model_path)
+    mlflow.log_artifact(str(final_model_path))
+
     mlflow.end_run()
 
 if __name__ == "__main__":
