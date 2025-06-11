@@ -8,7 +8,8 @@ __pycache__/
 env/
 
 # Data and outputs
-data/
+notebooks/.data/coco_export
+src/data/coco/
 logs/
 checkpoints/
 results/

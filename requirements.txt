@@ -8,3 +8,5 @@ black
 flake8
 isort
 matplotlib
+fiftyone
+ipykernel

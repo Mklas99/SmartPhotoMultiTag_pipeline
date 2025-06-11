@@ -49,3 +49,13 @@ See the workflow for details.
 
 > **Note** : Full datasets & long training jobs should run outside CI.  
 > Data/model versioning via **DVC** can be added later.
+
+
+multiclass class classification -> one result
+-> outputfunction: Softmax (output sum to 1)
+
+multilabel classification -> multiple result
+-> outpufunction: sigmoid (distribution of output) each 0-1
+
+
+binary cross entropy fkt computed for every input data

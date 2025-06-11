@@ -47,5 +47,8 @@
     "MLFLOW_HOST": "0.0.0.0",
     "FIFTYONE_DEFAULT_APP_PORT": "5151",
     "FIFTYONE_DEFAULT_APP_ADDRESS": "0.0.0.0"
-  }
+  },
+  "runArgs": [
+    "--shm-size=24g"
+  ]
 }

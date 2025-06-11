@@ -1,6 +1,6 @@
 import mlflow, torch, numpy as np
 from src.models.model import build_model
-from src.models.metrics import compute_f1
+from src.models.metrics import micro_f1
 from src.config import CHECKPOINT_DIR, ModelConfig
 from src.data.loader import load_data
 
@@ -26,7 +26,7 @@ def run_evaluation():
 
     y_pred = np.vstack(preds)
     y_true = np.vstack(gts)
-    f1 = compute_f1(y_true, y_pred)
+    f1 = micro_f1(y_true, y_pred)
 
     mlflow.start_run(run_name="evaluation")
     mlflow.log_metric("f1_score", f1)
