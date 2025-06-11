@@ -97,9 +97,9 @@ def run_training(
         # ----------------------------- MODEL, OPT & SCHEDULER -----------------------------
         print("Building model, optimizer and scheduler...")                               
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        #net = PhotoTagNet(model_cfg, num_classes).to(device)
+        net = PhotoTagNet(model_cfg, num_classes).to(device)
 
-        net = BasicMLC(num_classes).to(device)
+        #net = BasicMLC(num_classes).to(device)
 
         opt = _build_optimizer(net, optim_cfg)
         scheduler = _build_scheduler(opt, optim_cfg)

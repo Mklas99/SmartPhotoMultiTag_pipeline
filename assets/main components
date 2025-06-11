@@ -1,0 +1,7 @@
+flowchart LR
+    A[COCO-2017 Data via FiftyOne] --> B[Data Filtering & Splitting]
+    B --> C[Model Training (PyTorch)]
+    C --> D[Best Model Checkpoint]
+    D --> E[Evaluation Metrics & Plots]
+    E --> F[MLflow Logging & Reports]
+    D --> G[FiftyOne Predictions Viewer]

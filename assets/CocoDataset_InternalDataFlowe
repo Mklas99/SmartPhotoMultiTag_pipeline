@@ -1,0 +1,13 @@
+flowchart TD
+    subgraph CocoDataset
+        A1[__init__]
+        A2[_validate_images]
+        A3[_parse_annotations]
+        A4[image_ids<br>& multi-hot labels]
+        A5[__getitem__]
+        A6[train_transforms / val_transforms]
+        A7[(img tensor,<br>label vec)]
+    end
+
+    A1 --> A2 --> A3 --> A4
+    A4 --> A5 --> A6 --> A7

@@ -1,0 +1,5 @@
+flowchart LR
+    I[Raw Images + Labels] --> J[Preprocess & Augmentation]
+    J --> K[Train Multi-label Classifier]
+    K --> L[Generate Predictions]
+    L --> M[Tagged Images in FiftyOne]

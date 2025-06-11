@@ -6,17 +6,17 @@ from torchvision import transforms as T
 # -------- Project Root --------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-IMAGE_CNT: int = 10
+IMAGE_CNT: int = 150
 # -------- Core hyper‑parameters --------
 IMAGE_SIZE: int = 100
-BATCH_SIZE: int = 5
-NUM_WORKERS: int = 4
+BATCH_SIZE: int = 32
+NUM_WORKERS: int = 6
 
 DEFAULT_CLASSES: List[str] = [
-    "person", "dog"]
-#    "cat", "car", "bus", "bicycle",
-#    "pizza", "apple", "cell phone", "laptop"
-#]
+    "person", "dog"
+    "cat", "car", "bus", "bicycle",
+    "pizza", "apple", "cell phone", "laptop"
+]
 
 DATASET_ROOT = PROJECT_ROOT / "src" / "data" / "coco"
 DATASET_DIR = PROJECT_ROOT / "src" / "data" / "coco"
@@ -55,10 +55,11 @@ val_transforms = T.Compose([
 # -------- Config dataclasses --------
 @dataclass
 class ModelConfig:
-    backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet18"
+    backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet50"
     pretrained: bool = True
     freeze_backbone: bool = False     
-    drop_rate: float = 0.0            
+    drop_rate: float = 0.0      
+    dropout_rate: float = 0.5  # Dropout rate for classifier head      
 
 @dataclass
 class OptimConfig:

@@ -1,0 +1,41 @@
+flowchart TD
+    subgraph CLI
+        A[scripts/run_train.py]
+    end
+
+    A -->|parses args| B[train.run_training()]
+
+    subgraph Data
+        C[load_data() in src/data/loader.py]
+        D[CocoDataset (src/data/cocodataset.py)]
+        E[torch.utils.data.DataLoader]
+    end
+
+    subgraph Model-Build
+        F[BasicMLC / PhotoTagNet<br>(src/models/)]
+        G[_build_optimizer() &<br>_build_scheduler()<br>(utils/train_util.py)]
+    end
+
+    subgraph Training-Loop
+        H[for epoch in range(n_epochs)]
+        I[_run_one_epoch()<br>(train phase)]
+        J[_validate()<br>(val phase)]
+        K[ReduceLROnPlateau / StepLR]
+        L[Checkpoint + Metrics<br>saved to disk]
+    end
+
+    subgraph Logging
+        M[MLflow<br>params/metrics/artifacts]
+        N[FiftyOne Viewer<br>run_fiftyone_with_predicted.py]
+    end
+
+    B --> C
+    C --> D --> E
+    B --> F
+    B --> G
+    B --> H
+    H --> I --> H
+    H --> J --> H
+    H --> K
+    H --> L --> M
+    L --> N
