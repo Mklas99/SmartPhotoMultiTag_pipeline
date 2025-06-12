@@ -12,14 +12,37 @@ on:
         type: boolean
         description: Generate evaluation report?
         default: true
+      image-size:
+        description: Size of the images
+        default: "100"
+      batch-size:
+        description: Batch size for training
+        default: "32"
+      num-workers:
+        description: Number of workers for data loading
+        default: "8"
+      backbone:
+        description: Model backbone
+        default: "resnet50"
+        type: choice
+        options:
+        - resnet18
+        - resnet50
+        - efficientnet_b0
+      epochs:
+        description: Number of training epochs
+        default: "30"
+      early-stop-patience:
+        description: Patience for early stopping
+        default: "7"
 
 jobs:
   run-pipeline:
-    runs-on:  # <- label filter
+    runs-on:
       - self-hosted             
       - windows                 
       - x64                     
-      # - gpu                   
+      - gpu                   
     defaults:
       run:
         shell: powershell
@@ -45,9 +68,31 @@ jobs:
         env:
           MAX_SAMPLES: ${{ github.event.inputs.max-samples || '50' }}
           REPORT:      ${{ github.event.inputs.report      || 'false' }}
+          IMAGE_SIZE:  ${{ github.event.inputs.image-size || '100' }}
+          BATCH_SIZE:  ${{ github.event.inputs.batch-size || '32' }}
+          NUM_WORKERS: ${{ github.event.inputs.num-workers || '8' }}
+          BACKBONE:    ${{ github.event.inputs.backbone || 'resnet50' }}
+          EPOCHS:      ${{ github.event.inputs.epochs || '30' }}
+          EARLY_STOP_PATIENCE: ${{ github.event.inputs.early-stop-patience || '7' }}
         run: |
           $reportFlag = if ($env:REPORT -eq 'true') { '--report' } else { '' }
 
           python scripts/run_pipeline.py `
             --max-samples $env:MAX_SAMPLES `
+            --image-size $env:IMAGE_SIZE `
+            --batch-size $env:BATCH_SIZE `
+            --num-workers $env:NUM_WORKERS `
+            --backbone $env:BACKBONE `
+            --epochs $env:EPOCHS `
+            --early-stop-patience $env:EARLY_STOP_PATIENCE `
             $reportFlag
+      
+      # Upload training artifacts
+      - name: Upload training artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: training-artifacts
+          path: |
+            checkpoints/
+            results/
+            mlruns/

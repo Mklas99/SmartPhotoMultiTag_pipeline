@@ -1,34 +1,52 @@
+import os
+import sys
+import fiftyone.types as fot
+
+# Add the project root directory to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
+from src.models.PhotoTagNet_model import PhotoTagNet
 import fiftyone as fo
 import torch
 from PIL import Image
 import numpy as np
 from tqdm import tqdm
-from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, train_transforms 
-import src.data.loader as data_loader
+from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, ModelConfig, train_transforms 
+from src.data import loader as data_loader
 
 # --- Config ---
 LABELS = DEFAULT_CLASSES
-MODEL_PATH = CHECKPOINT_DIR / "best_epoch2.pt"
+TEST_FILES_DIR = "src/data/coco/test"
+MODEL_PATH = CHECKPOINT_DIR / "final_model_notebook.pth"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # --- Load Model ---
-model = torch.load(MODEL_PATH, map_location=DEVICE)
+model = PhotoTagNet(ModelConfig(), num_classes=len(LABELS))
+model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 model.eval()
 
 # --- Transform (same as during training) ---
 transform = train_transforms
 
 # Load FiftyOne dataset
-dataset = data_loader.load_fiftyone_dataset(split="test")
-test_view = dataset
+print("Launch FifyOne...")
+dataset = fo.Dataset.from_dir(
+    dataset_dir=TEST_FILES_DIR,
+    dataset_type=fot.COCODetectionDataset,
+)
+
+test_view = dataset.view()
 
 # --- Predict and Annotate ---
+print("predicting labels...")
 for sample in tqdm(test_view):
     img = Image.open(sample.filepath).convert("RGB")
     img_tensor = transform(img).unsqueeze(0).to(DEVICE)
 
     with torch.no_grad():
-        probs = train_transforms(img_tensor).squeeze()
+        outputs = model(img_tensor)
+        probs = torch.sigmoid(outputs).squeeze()
         preds = (probs > 0.5).cpu().numpy()
 
     predicted_labels = [LABELS[i] for i, flag in enumerate(preds) if flag]
@@ -39,5 +57,8 @@ for sample in tqdm(test_view):
     sample.save()
 
 # --- Launch FiftyOne App ---
+print("Launch FifyOne...")
 session = fo.launch_app(view=test_view)
 session.wait()
+
+

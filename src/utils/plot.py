@@ -14,35 +14,43 @@ from sklearn.metrics import precision_recall_curve, confusion_matrix
 from src import config
 from src.data.cocodataset import CocoDataset
 
-def save_loss_plot(train_loss: list, val_loss: list, path: str):
+def _tmp_png(prefix: str) -> Path:
+    rnd = "".join(random.choices(string.ascii_letters, k=6))
+    (config.RESULTS_DIR / "plots").mkdir(parents=True, exist_ok=True)
+    path = config.RESULTS_DIR / "plots" / Path(f"{prefix}_{rnd}.png")
+    return path
+
+def save_loss_plot(train_loss: list, val_loss: list, titel: str = "") -> Path:
     plt.figure()
     plt.plot(train_loss, label="train")
     plt.plot(val_loss, label="val")
     plt.legend()
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
+    plt.title("Loss Plot" + f" - {titel}")
+
+    path = _tmp_png("loss" + titel)
     plt.savefig(path)
     plt.close()
-
-def _tmp_png(prefix: str) -> Path:
-    rnd = "".join(random.choices(string.ascii_letters, k=6))
-
-    path = config.RESULTS_DIR / "plots" / Path(f"{prefix}_{rnd}.png")
     return path
 
-def save_confusion_matrix(y_true, y_score, num_classes) -> Path:
+def save_confusion_matrix(y_true, y_score, title ="") -> Path:
     preds = (y_score >= 0.5).astype(int)
     cm = confusion_matrix(y_true.reshape(-1), preds.reshape(-1))
     fig, ax = plt.subplots()
     ax.imshow(cm, cmap="Blues")
     ax.set_title("Confusion Matrix (flattened)")
+    ax.set_xlabel("Predicted label")
+    ax.set_ylabel("True label")
     fig.tight_layout()
+    plt.title("Confusion Matrix" + f" - {title}")
+
     path = _tmp_png("cm")
     fig.savefig(path)
     plt.close(fig)
     return path
 
-def save_roc_curves(y_true, y_score) -> Path:
+def save_roc_curves(y_true, y_score, title ="") -> Path:
     fig, ax = plt.subplots()
     for c in range(y_true.shape[1]):
         try:
@@ -53,12 +61,14 @@ def save_roc_curves(y_true, y_score) -> Path:
     ax.set_title("PR Curves per class")
     ax.set_xlabel("Recall"); ax.set_ylabel("Precision")
     fig.tight_layout()
-    path = _tmp_png("pr")
+    plt.title("PR Curves" + f" - {title}")
+
+    path = _tmp_png("pr" + title)
     fig.savefig(path)
     plt.close(fig)
     return path
 
-def save_sample_preds(model, val_ds: CocoDataset, device, class_names: List[str], n: int = 4) -> Path:
+def save_sample_preds(model, val_ds: CocoDataset, device, class_names: List[str], title ="", n: int = 6) -> Path:
     """Save a grid of n validation images + predicted top-5(max) tags."""
     # First, ensure 'n' is not negative. and avlidation dataset is not empty.
     if len(val_ds) == 0:
@@ -90,9 +100,10 @@ def save_sample_preds(model, val_ds: CocoDataset, device, class_names: List[str]
         ax.imshow(np.clip(np_img, 0, 1))
         ax.axis("off")
         ax.set_title(f"Top: {', '.join(top5_names)}", fontsize=8)
-
-    path = _tmp_png("samples")
+    fig.suptitle("Sample Predictions" + (f" - {title}" if title else ""), fontsize=14)
     fig.tight_layout()
+
+    path = _tmp_png("sample-pred_" + title)
     fig.savefig(path)
     plt.close(fig)
     return path

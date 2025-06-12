@@ -23,7 +23,7 @@ class CocoDataset(Dataset):
         images_dir: str,
         annotations_file: str,
         transform: Optional[transforms.Compose] = None,
-        target_category_names: Optional[List[str]] = None
+        target_category_names: Optional[List[str]] = config.DEFAULT_CLASSES
     ):
         self.images_dir = Path(images_dir)
         self.annotations_file = Path(annotations_file)
@@ -50,7 +50,7 @@ class CocoDataset(Dataset):
             categories=data['categories'],
             annotations=data.get('annotations', [])
         )
-
+        
         if self.transform is None:
             if "train" in self.annotations_file.name.lower():
                 self.transform = config.train_transforms
@@ -130,7 +130,15 @@ class CocoDataset(Dataset):
             labels.append(label_vec)
 
         return image_ids, id_to_filename, labels, category_names
-
+    
+    def get_label_counts(self) -> Tensor:
+        """
+        Returns a tensor of label counts per class (number of images per class).
+        """
+        if not self.labels:
+            return torch.zeros(len(self.category_names), dtype=torch.int64)
+        stacked = torch.stack(self.labels)
+        return stacked.sum(dim=0).to(dtype=torch.int64)
 
 def collate_fn(batch: List[Optional[Tuple[Tensor, Tensor]]]) -> Optional[Tuple[Tensor, Tensor]]:
     """

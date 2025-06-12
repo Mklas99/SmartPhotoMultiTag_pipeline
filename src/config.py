@@ -1,22 +1,18 @@
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Dict, List, Literal, Optional  # Import Optional
+from typing import Dict, List, Literal, Optional, Tuple  # Import Optional
 from torchvision import transforms as T
 
 # -------- Project Root --------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-IMAGE_CNT: int = 150
+IMAGE_CNT: int = 300
 # -------- Core hyper‑parameters --------
 IMAGE_SIZE: int = 100
 BATCH_SIZE: int = 32
 NUM_WORKERS: int = 6
 
-DEFAULT_CLASSES: List[str] = [
-    "person", "dog"
-    "cat", "car", "bus", "bicycle",
-    "pizza", "apple", "cell phone", "laptop"
-]
+DEFAULT_CLASSES: List[str] = 'person', 'dog' , 'cat', 'car', 'bus', 'bicycle', 'cell phone', 'laptop'
 
 DATASET_ROOT = PROJECT_ROOT / "src" / "data" / "coco"
 DATASET_DIR = PROJECT_ROOT / "src" / "data" / "coco"
@@ -58,19 +54,19 @@ class ModelConfig:
     backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet50"
     pretrained: bool = True
     freeze_backbone: bool = False     
-    drop_rate: float = 0.0      
-    dropout_rate: float = 0.5  # Dropout rate for classifier head      
+    dropout_rate: float = 0.7  # Dropout rate for classifier head      
 
 @dataclass
 class OptimConfig:
     optim: Literal["adamw", "sgd"] = "adamw"
     lr: float = 3e-4
     weight_decay: float = 1e-4
+    betas: Tuple[float, float] = (0.9, 0.999) # AdamW only
     momentum: float = 0.9              # SGD only
-    scheduler: Literal["none", "step", "plateau"] = "step"
-    step_size: int = 5                 # StepLR
-    gamma: float = 0.5                 # StepLR
-    patience: int = 3                  # ReduceLROnPlateau
+    scheduler: Literal["none", "step", "plateau", "cosine"] = "step"
+    step_size: int = 5                 # StepLR + CosineAnnealingLR
+    gamma: float = 0.5                 # StepLR + CosineAnnealingLR + ReduceLROnPlateau
+    patience: int = 5                  # ReduceLROnPlateau
 
 @dataclass
 class TrainConfig:

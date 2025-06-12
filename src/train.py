@@ -1,15 +1,11 @@
 import os
-import string
+from socket import BTPROTO_RFCOMM
 import time
 import numpy as np
-from pyparsing import C
 import torch
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-
 import mlflow
-
-from dataclasses import asdict
 from tqdm.auto import tqdm
 import yaml
 
@@ -17,6 +13,7 @@ from src import config
 from src.config import (
     BATCH_SIZE,
     DATASET_ROOT,
+    IMAGE_CNT,
     NUM_WORKERS,
     RESULTS_DIR,
     ModelConfig,
@@ -26,11 +23,11 @@ from src.config import (
     train_transforms,
     val_transforms
 )
-from src.data.loader import load_data, CocoDataset, collate_fn
+from src.data.loader import load_data, CocoDataset, collate_fn, prepare_dataset
 from src.models.basic_model import BasicMLC
-from src.models.PhotoTagNet import PhotoTagNet
+from src.models.PhotoTagNet_model import PhotoTagNet
 from src.utils.seed import set_seed
-from src.utils.plot import save_loss_plot, save_sample_preds
+from src.utils.plot import save_loss_plot, save_sample_preds, save_confusion_matrix, save_roc_curves
 from src.utils.train_util import _run_one_epoch, _validate,  _build_optimizer, _build_scheduler
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -40,15 +37,17 @@ def run_training(
     optim_cfg: OptimConfig = None,
     train_cfg: TrainConfig = None,
     custom_classes: list[str] | None = config.DEFAULT_CLASSES,
-    generate_report: bool = False
+    generate_report: bool = True
 ):
+    
     # ---- configs ----
     model_cfg = model_cfg or ModelConfig()
     optim_cfg = optim_cfg or OptimConfig()
     train_cfg = train_cfg or TrainConfig()
 
     set_seed(train_cfg.seed)
-    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     # ---- Ensure directories and config.yaml exist ----
     os.makedirs(RESULTS_DIR, exist_ok=True)
     os.makedirs(RESULTS_DIR / "plots", exist_ok=True)
@@ -59,47 +58,25 @@ def run_training(
             yaml.dump(config.as_flat_dict(), f)
 
     # ---- MLflow ----
-    mlflow.set_experiment("photo-tagger")
-    with mlflow.start_run(run_name="photo-tagger" + time.strftime("%Y%m%d-%H%M%S")):
+    mlflow.set_experiment("photo-tagger-experiment")
+    with mlflow.start_run(run_name="photo-tagger-experiment" + time.strftime("%Y%m%d-%H%M%S")):
         
-        # ----------------------------- DATA & DATALOADERS -----------------------------
+        # ----------------------------- DATA / DATALOADERS -----------------------------
         num_classes = config.get_num_classes(custom_classes)
-        train_ds = CocoDataset(
-            DATASET_ROOT / "train/data", 
-            DATASET_ROOT / "train/labels.json", 
-            transform=train_transforms,
-            target_category_names=custom_classes
-        )
-        val_ds = CocoDataset(
-            DATASET_ROOT / "val/data", 
-            DATASET_ROOT / "val/labels.json", 
-            transform=val_transforms,
-            target_category_names=custom_classes
-        )
-        
-        train_ld = DataLoader(
-            train_ds,
+
+        print("Loading datasets and creating dataloaders...")
+        train_dataset, val_dataset, train_loader, val_loader = load_data(
+            classes=custom_classes,
+            max_samples=IMAGE_CNT,
             batch_size=BATCH_SIZE,
-            shuffle=True,           # shuffle for every epoch
             num_workers=NUM_WORKERS,
-            collate_fn=collate_fn,
-            #pin_memory=True, # pin_memory=True is useful for GPU training
-        )
-        val_ld = DataLoader(
-            val_ds,
-            batch_size=BATCH_SIZE,
-            shuffle=False,
-            num_workers=NUM_WORKERS,
-            collate_fn=collate_fn,
-            #pin_memory=True,
-        )
+            )
+        print(f"Data loaded. Train batches: {len(train_loader)}, Val batches: {len(val_loader)}")
 
         # ----------------------------- MODEL, OPT & SCHEDULER -----------------------------
         print("Building model, optimizer and scheduler...")                               
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        net = PhotoTagNet(model_cfg, num_classes).to(device)
-
-        #net = BasicMLC(num_classes).to(device)
+        #net = PhotoTagNet(model_cfg, num_classes).to(device)
+        net = BasicMLC(num_classes).to(device)
 
         opt = _build_optimizer(net, optim_cfg)
         scheduler = _build_scheduler(opt, optim_cfg)
@@ -107,41 +84,51 @@ def run_training(
         # ----------------------------- LOG PARAMS -----------------------------
         print("Logging parameters to MLflow...")                                                
         mlflow.log_params(config.as_flat_dict())
-        mlflow.log_params({"num_classes": num_classes, **model_cfg.__dict__})
+        mlflow.log_params({"num_classes": num_classes, "classes": custom_classes, **model_cfg.__dict__})
 
         # ----------------------------- TRAIN LOOP -----------------------------
         print("Starting training loop...")                           
         best_val = -np.inf
         patience_left = train_cfg.early_stop_patience
+        train_losses, val_losses = [], []
 
         for epoch in tqdm(range(1, train_cfg.epochs + 1)):
             train_loss = _run_one_epoch(
                 net,
-                train_ld,
+                train_loader,
                 opt,
                 device,
-                train=True,
+                epoch_nbr=epoch,
             )
             val_loss, val_metrics = _validate(
                 net,
-                val_ld,
+                val_loader,
                 device,
                 k=train_cfg.precision_at_k,
+                epoch_nbr=epoch,
             )
 
-            # scheduler step
+            train_losses.append(train_loss)
+            val_losses.append(val_loss)
+
+            # ---------------- scheduler step
             if isinstance(scheduler, ReduceLROnPlateau):
                 scheduler.step(val_loss)
             else:
                 scheduler.step()
 
-            # MLflow logging
+            # ---------------- MLflow logging
             mlflow.log_metric("train_loss", train_loss, step=epoch)
             mlflow.log_metric("val_loss", val_loss, step=epoch)
+
+            if generate_report:
+                save_loss_plot_path = save_loss_plot(train_loss, val_loss, titel=f"epoch_{epoch}_of_{train_cfg.epochs}")
+                mlflow.log_artifact(str(save_loss_plot_path))
+
             for k, v in val_metrics.items():
                 mlflow.log_metric(k, v, step=epoch)
 
-            # checkpoint if best macro-F1 improves
+            # ---------------- checkpoint if best macro-F1 improves 
             if val_metrics["macro_F1"] > best_val:
                 best_val = val_metrics["macro_F1"]
                 patience_left = train_cfg.early_stop_patience
@@ -156,29 +143,29 @@ def run_training(
                 )
                 mlflow.log_artifact(str(ckpt_path))
                 # qualitative artefacts
-                preds_path = save_sample_preds(net, val_ds, device, train_ds.category_names)
-                mlflow.log_artifact(str(preds_path))
+                if generate_report:
+                    preds_path = save_sample_preds(net, val_dataset, device, train_dataset.category_names, f"epoch_{epoch}_of_{train_cfg.epochs}")
+                    mlflow.log_artifact(str(preds_path))
+                    print(f"Saved sample predictions to {preds_path}")
             else:
                 patience_left -= 1
 
-            print(
-                f"[{epoch}/{train_cfg.epochs}] "
-                f"train={train_loss:.4f}  val={val_loss:.4f}  "
-                f"macroF1={val_metrics['macro_F1']:.3f}"
-            )
+            print(f"Epoch {epoch+1}/{train_cfg.epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
             if patience_left == 0:
                 print("Early stopping – no improvement.")
                 break
-
+                
         mlflow.log_artifact(str(RESULTS_DIR / "config.yaml"), artifact_path="run_config")
         mlflow.end_run()
         print("Training completed and logged to MLflow.")
+        print(f"Best validation macro-F1: {best_val:.4f} at epoch {epoch}")
 
-if __name__ == "__main__":
-    import argparse, os
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", type=int, default=None, help="Override epochs")
-    parser.add_argument("--report", action="store_true", help="Generate detailed report")
-    args = parser.parse_args()
-    run_training(args.epochs, generate_report=args.report)
+        # Save the best performing checkpoint as model
+        best_ckpt = max(CHECKPOINT_DIR.glob("best_epoch_*.pt"), key=os.path.getctime, default=None)
+        if best_ckpt:
+            model_save_path = RESULTS_DIR / "best_model.pt"
+            torch.save(torch.load(best_ckpt), model_save_path)
+            mlflow.log_artifact(str(model_save_path))
+
+        print(f"Best model saved to {model_save_path}")
