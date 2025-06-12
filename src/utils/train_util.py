@@ -63,7 +63,7 @@ def _run_one_epoch(
     net.train()
     
     all_lossess = []
-    progress_bar = tqdm(loader, desc = f"Epoch {epoch_nbr+1} [Training]", unit="batch")
+    progress_bar = tqdm(loader, desc = f"Epoch {epoch_nbr} [Training]", unit="batch")
 
     for imgs, labels in progress_bar: # Iterate over batches
         imgs, labels = imgs.to(device), labels.to(device)
@@ -81,7 +81,6 @@ def _run_one_epoch(
         progress_bar.set_postfix(loss=loss.item())
 
     return float(np.mean(all_lossess))
-
 
 @torch.no_grad()
 def _validate(
@@ -103,7 +102,7 @@ def _validate(
 
             logits = net(imgs)
             # Compute binary cross-entropy loss
-            pos_weight = compute_reweight_vector(net.label_counts) # Reweighting vector based on label frequencies
+            pos_weight = compute_reweight_vector(loader.dataset.get_label_counts()) # Reweighting vector based on label frequencies
             loss = F.binary_cross_entropy_with_logits(logits, labels, pos_weight=pos_weight.to(device))
             all_losses.append(loss.item())
             val_running_loss += loss.item()
@@ -150,5 +149,5 @@ def compute_reweight_vector(label_counts: torch.Tensor) -> torch.Tensor:
     epsilon   = 1e-6
     inv_freq  = 1.0 / (freq + epsilon)
 
-    # scale so the *average* weight = 1 (purely cosmetic but convenient)
+    # scale so the average weight = 1 (purely cosmetic but convenient)
     return inv_freq * (inv_freq.numel() / inv_freq.sum())

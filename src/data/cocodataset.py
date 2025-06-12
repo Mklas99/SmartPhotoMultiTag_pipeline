@@ -14,8 +14,6 @@ from PIL import Image, UnidentifiedImageError
 class CocoDataset(Dataset):
     """
     Dataset class for multi-label classification using COCO-format annotations.
-
-    Each sample returns a tuple (image_tensor, multi_hot_label).
     """
 
     def __init__(

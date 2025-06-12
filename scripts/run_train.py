@@ -64,7 +64,7 @@ def main():
     p.add_argument(
         "--report",
         action="store_true",
-        default=getattr(default_train_cfg, 'report', False),
+        default=getattr(default_train_cfg, 'report', True),
         help="Generate detailed report during training (default: False, or TrainConfig default)"
     )
 

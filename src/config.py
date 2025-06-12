@@ -6,10 +6,10 @@ from torchvision import transforms as T
 # -------- Project Root --------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-IMAGE_CNT: int = 300
+IMAGE_CNT: int = 800
 # -------- Core hyper‑parameters --------
 IMAGE_SIZE: int = 100
-BATCH_SIZE: int = 32
+BATCH_SIZE: int = 16
 NUM_WORKERS: int = 6
 
 DEFAULT_CLASSES: List[str] = 'person', 'dog' , 'cat', 'car', 'bus', 'bicycle', 'cell phone', 'laptop'
@@ -33,7 +33,7 @@ MEAN = [0.485, 0.456, 0.406]
 STD  = [0.229, 0.224, 0.225]
 
 train_transforms = T.Compose([
-    T.RandomResizedCrop(IMAGE_SIZE, scale=(0.8, 5.0)),
+    T.RandomResizedCrop(IMAGE_SIZE, scale=(0.8, 1.0)),
     T.RandomHorizontalFlip(),
     T.RandomRotation(10),  
     T.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
@@ -54,7 +54,7 @@ class ModelConfig:
     backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet50"
     pretrained: bool = True
     freeze_backbone: bool = False     
-    dropout_rate: float = 0.7  # Dropout rate for classifier head      
+    dropout_rate: float = 0.3  # Dropout rate for classifier head      
 
 @dataclass
 class OptimConfig:

@@ -19,6 +19,7 @@ from src.data import loader as data_loader
 LABELS = DEFAULT_CLASSES
 TEST_FILES_DIR = "src/data/coco/test"
 MODEL_PATH = CHECKPOINT_DIR / "final_model_notebook.pth"
+MODEL_PATH2 = CHECKPOINT_DIR / "best_model.pth"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # --- Load Model ---

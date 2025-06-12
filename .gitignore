@@ -21,3 +21,5 @@ mlruns.db
 .DS_Store
 .vscode/
 .idea/
+assets/final_model_notebook.pth
+assets/best_model.pt
