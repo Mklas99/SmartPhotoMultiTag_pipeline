@@ -40,9 +40,7 @@ jobs:
   run-pipeline:
     runs-on:
       - self-hosted             
-      - windows                 
-      - x64                     
-      - gpu                   
+                  
     defaults:
       run:
         shell: powershell
