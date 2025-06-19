@@ -10,3 +10,4 @@ isort
 matplotlib
 fiftyone
 ipykernel
+black[jupyter]
