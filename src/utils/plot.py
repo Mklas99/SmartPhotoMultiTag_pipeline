@@ -1,6 +1,7 @@
 """
 Small helpers: seeding, meters, plot saving.
 """
+
 from __future__ import annotations
 
 import random
@@ -14,11 +15,13 @@ from sklearn.metrics import precision_recall_curve, confusion_matrix
 from src import config
 from src.data.cocodataset import CocoDataset
 
+
 def _tmp_png(prefix: str) -> Path:
     rnd = "".join(random.choices(string.ascii_letters, k=6))
     (config.RESULTS_DIR / "plots").mkdir(parents=True, exist_ok=True)
     path = config.RESULTS_DIR / "plots" / Path(f"{prefix}_{rnd}.png")
     return path
+
 
 def save_loss_plot(train_loss: list, val_loss: list, titel: str = "") -> Path:
     plt.figure()
@@ -34,7 +37,8 @@ def save_loss_plot(train_loss: list, val_loss: list, titel: str = "") -> Path:
     plt.close()
     return path
 
-def save_confusion_matrix(y_true, y_score, title ="") -> Path:
+
+def save_confusion_matrix(y_true, y_score, title="") -> Path:
     preds = (y_score >= 0.5).astype(int)
     cm = confusion_matrix(y_true.reshape(-1), preds.reshape(-1))
     fig, ax = plt.subplots()
@@ -50,7 +54,8 @@ def save_confusion_matrix(y_true, y_score, title ="") -> Path:
     plt.close(fig)
     return path
 
-def save_roc_curves(y_true, y_score, title ="") -> Path:
+
+def save_roc_curves(y_true, y_score, title="") -> Path:
     fig, ax = plt.subplots()
     for c in range(y_true.shape[1]):
         try:
@@ -59,7 +64,8 @@ def save_roc_curves(y_true, y_score, title ="") -> Path:
         except ValueError:
             continue
     ax.set_title("PR Curves per class")
-    ax.set_xlabel("Recall"); ax.set_ylabel("Precision")
+    ax.set_xlabel("Recall")
+    ax.set_ylabel("Precision")
     fig.tight_layout()
     plt.title("PR Curves" + f" - {title}")
 
@@ -68,15 +74,22 @@ def save_roc_curves(y_true, y_score, title ="") -> Path:
     plt.close(fig)
     return path
 
-def save_sample_preds(model, val_ds: CocoDataset, device, class_names: List[str], title ="", n: int = 6) -> Path:
+
+def save_sample_preds(
+    model, val_ds: CocoDataset, device, class_names: List[str], title="", n: int = 6
+) -> Path:
     """Save a grid of n validation images + predicted top-5(max) tags."""
     # First, ensure 'n' is not negative. and avlidation dataset is not empty.
     if len(val_ds) == 0:
-        print("Warning: Validation dataset is empty. No samples will be selected for plotting.")
+        print(
+            "Warning: Validation dataset is empty. No samples will be selected for plotting."
+        )
         idxs = []
 
     if n < 0:
-        print(f"Warning: The desired number of samples 'n' is negative ({n}). Will attempt to sample 0 items.")
+        print(
+            f"Warning: The desired number of samples 'n' is negative ({n}). Will attempt to sample 0 items."
+        )
         n = 0
     else:
         n = n

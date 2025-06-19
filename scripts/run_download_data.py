@@ -3,7 +3,7 @@ import sys
 import argparse
 
 # Add the project root directory to Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.data.loader import prepare_dataset
 from src.config import DEFAULT_CLASSES, IMAGE_CNT
@@ -30,7 +30,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    print(f"Preparing dataset with max_samples={args.max_samples}, classes={args.classes}, seed={args.seed}")
+    print(
+        f"Preparing dataset with max_samples={args.max_samples}, classes={args.classes}, seed={args.seed}"
+    )
     prepare_dataset(
         classes=args.classes,
         max_samples=args.max_samples,

@@ -3,7 +3,7 @@ import sys
 import fiftyone.types as fot
 
 # Add the project root directory to Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 from src.models.PhotoTagNet_model import PhotoTagNet
@@ -12,7 +12,7 @@ import torch
 from PIL import Image
 import numpy as np
 from tqdm import tqdm
-from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, ModelConfig, train_transforms 
+from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, ModelConfig, train_transforms
 from src.data import loader as data_loader
 
 # --- Config ---
@@ -61,5 +61,3 @@ for sample in tqdm(test_view):
 print("Launch FifyOne...")
 session = fo.launch_app(view=test_view)
 session.wait()
-
-

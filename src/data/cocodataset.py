@@ -3,7 +3,7 @@ import json
 import warnings
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict
-from src import config 
+from src import config
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset
@@ -21,7 +21,7 @@ class CocoDataset(Dataset):
         images_dir: str,
         annotations_file: str,
         transform: Optional[transforms.Compose] = None,
-        target_category_names: Optional[List[str]] = config.DEFAULT_CLASSES
+        target_category_names: Optional[List[str]] = config.DEFAULT_CLASSES,
     ):
         self.images_dir = Path(images_dir)
         self.annotations_file = Path(annotations_file)
@@ -29,26 +29,25 @@ class CocoDataset(Dataset):
         self.target_category_names = target_category_names
 
         if not self.annotations_file.exists():
-            raise FileNotFoundError(f"Annotation file not found: {self.annotations_file}")
+            raise FileNotFoundError(
+                f"Annotation file not found: {self.annotations_file}"
+            )
 
-        with open(self.annotations_file, 'r') as f:
+        with open(self.annotations_file, "r") as f:
             data = json.load(f)
 
-        self.valid_images = self._validate_images(data['images'])
+        self.valid_images = self._validate_images(data["images"])
         if not self.valid_images:
             raise RuntimeError("No valid images found in dataset.")
 
-        (
-            self.image_ids,
-            self.id_to_filename,
-            self.labels,
-            self.category_names
-        ) = self._parse_annotations(
-            image_metadata_list=self.valid_images,
-            categories=data['categories'],
-            annotations=data.get('annotations', [])
+        (self.image_ids, self.id_to_filename, self.labels, self.category_names) = (
+            self._parse_annotations(
+                image_metadata_list=self.valid_images,
+                categories=data["categories"],
+                annotations=data.get("annotations", []),
+            )
         )
-        
+
         if self.transform is None:
             if "train" in self.annotations_file.name.lower():
                 self.transform = config.train_transforms
@@ -64,7 +63,7 @@ class CocoDataset(Dataset):
         label = self.labels[idx]
 
         try:
-            image = Image.open(img_path).convert('RGB')
+            image = Image.open(img_path).convert("RGB")
             if self.transform:
                 image = self.transform(image)
             return image, label
@@ -91,31 +90,33 @@ class CocoDataset(Dataset):
         self,
         image_metadata_list: List[dict],
         categories: List[dict],
-        annotations: List[dict]
+        annotations: List[dict],
     ) -> Tuple[List[int], Dict[int, str], List[Tensor], List[str]]:
 
         # Category handling
         if self.target_category_names:
             selected_categories = [
-                cat for cat in categories if cat['name'] in self.target_category_names
+                cat for cat in categories if cat["name"] in self.target_category_names
             ]
-            selected_categories.sort(key=lambda x: self.target_category_names.index(x['name']))
+            selected_categories.sort(
+                key=lambda x: self.target_category_names.index(x["name"])
+            )
         else:
-            selected_categories = sorted(categories, key=lambda x: x['id'])
+            selected_categories = sorted(categories, key=lambda x: x["id"])
 
-        category_names = [cat['name'] for cat in selected_categories]
-        category_ids = [cat['id'] for cat in selected_categories]
+        category_names = [cat["name"] for cat in selected_categories]
+        category_ids = [cat["id"] for cat in selected_categories]
         catid_to_index = {cat_id: idx for idx, cat_id in enumerate(category_ids)}
 
         # Image ID to filename map
-        id_to_filename = {img['id']: img['file_name'] for img in image_metadata_list}
+        id_to_filename = {img["id"]: img["file_name"] for img in image_metadata_list}
         image_ids = list(id_to_filename.keys())
 
         # Build multi-label mappings
         img_to_cats = {img_id: [] for img_id in image_ids}
         for ann in annotations:
-            img_id = ann['image_id']
-            cat_id = ann['category_id']
+            img_id = ann["image_id"]
+            cat_id = ann["category_id"]
             if img_id in img_to_cats and cat_id in catid_to_index:
                 img_to_cats[img_id].append(cat_id)
 
@@ -128,7 +129,7 @@ class CocoDataset(Dataset):
             labels.append(label_vec)
 
         return image_ids, id_to_filename, labels, category_names
-    
+
     def get_label_counts(self) -> Tensor:
         """
         Returns a tensor of label counts per class (number of images per class).
@@ -138,7 +139,10 @@ class CocoDataset(Dataset):
         stacked = torch.stack(self.labels)
         return stacked.sum(dim=0).to(dtype=torch.int64)
 
-def collate_fn(batch: List[Optional[Tuple[Tensor, Tensor]]]) -> Optional[Tuple[Tensor, Tensor]]:
+
+def collate_fn(
+    batch: List[Optional[Tuple[Tensor, Tensor]]],
+) -> Optional[Tuple[Tensor, Tensor]]:
     """
     Collate function that filters out failed samples (None).
     Returns a valid batch or None if all failed.

@@ -6,6 +6,7 @@ from src.data.loader import load_data
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 def run_evaluation():
     model = BasicMLC(DEFAULT_CLASSES).to(DEVICE)
     ckpt = CHECKPOINT_DIR / "best_model.pth"
@@ -31,6 +32,7 @@ def run_evaluation():
     mlflow.log_metric("f1_score", f1)
     mlflow.end_run()
     print(f"F1(micro) = {f1:.4f}")
+
 
 if __name__ == "__main__":
     run_evaluation()

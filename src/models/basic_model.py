@@ -3,6 +3,7 @@ from torchvision.models import ResNet18_Weights
 
 import torch.nn as nn
 
+
 class BasicMLC(nn.Module):
     def __init__(self, num_classes):
         super(BasicMLC, self).__init__()

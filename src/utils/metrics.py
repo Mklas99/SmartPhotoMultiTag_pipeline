@@ -1,6 +1,7 @@
 """
 Multi-label metrics handy for training & validation.
 """
+
 from __future__ import annotations
 
 import torch
@@ -27,7 +28,7 @@ def micro_f1(y_true, y_pred, thresh=0.5):
 @torch.no_grad()
 def precision_at_k(y_true, y_score, k: int):
     """Precision@K averaged over samples."""
-    topk = np.argsort(-y_score, axis=1)[:, :k]          # highest scores
+    topk = np.argsort(-y_score, axis=1)[:, :k]  # highest scores
     hits = np.take_along_axis(y_true, topk, axis=1)
     return hits.sum() / (y_true.shape[0] * k + 1e-9)
 
