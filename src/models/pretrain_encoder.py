@@ -7,9 +7,7 @@ import torchvision.models as models
 class ResNetEncoder(nn.Module):
     def __init__(self, name="resnet18", pretrained=False, projection_dim: int = 128):
         super().__init__()
-        backbone = getattr(models, name)(
-            weights=None if not pretrained else "IMAGENET1K_V1"
-        )
+        backbone = getattr(models, name)(weights=None if not pretrained else "IMAGENET1K_V1")
         self.features = nn.Sequential(*list(backbone.children())[:-1])  # remove FC
         self.projection_head = nn.Sequential(
             nn.Linear(backbone.fc.in_features, projection_dim),

@@ -64,9 +64,7 @@ def coco_test_setup(tmp_path: Path) -> tuple[str, str]:
         {"image_id": 3, "category_id": 20},  # img3 -> catB (multi-label)
     ]
 
-    _create_dummy_annotations_file(
-        annotations_file, images_data, annotations_data, categories_data
-    )
+    _create_dummy_annotations_file(annotations_file, images_data, annotations_data, categories_data)
 
     _create_dummy_image(images_dir / "img1.png", color="red")
     _create_dummy_image(images_dir / "img2.jpg", color="blue")
@@ -115,12 +113,8 @@ def test_getitem_valid_index_and_labels(coco_test_setup: tuple[str, str]):
         img, label = dataset[i]
         assert isinstance(img, torch.Tensor), f"Image at index {i} should be a Tensor."
         assert img.shape == (3, 10, 10), f"Image at index {i} has unexpected shape."
-        assert isinstance(
-            label, torch.Tensor
-        ), f"Label at index {i} should be a Tensor."
-        assert torch.equal(
-            label, expected_labels[i]
-        ), f"Label at index {i} is incorrect."
+        assert isinstance(label, torch.Tensor), f"Label at index {i} should be a Tensor."
+        assert torch.equal(label, expected_labels[i]), f"Label at index {i} is incorrect."
 
 
 def test_getitem_when_image_transform_returns_none(coco_test_setup: tuple[str, str]):
@@ -139,9 +133,7 @@ def test_getitem_when_image_transform_returns_none(coco_test_setup: tuple[str, s
             if self.call_count == 1:  # Affects the first image processed by __init__
                 return None
             # Standard transform for subsequent images
-            return transforms.Compose(
-                [transforms.Resize((10, 10)), transforms.ToTensor()]
-            )(pil_img)
+            return transforms.Compose([transforms.Resize((10, 10)), transforms.ToTensor()])(pil_img)
 
     dataset = CocoDataset(
         images_dir=images_dir,
@@ -154,25 +146,13 @@ def test_getitem_when_image_transform_returns_none(coco_test_setup: tuple[str, s
     # First image's transform should have returned None
     img1, label1 = dataset[0]
     assert img1 is None, "Image for the first item should be None due to transform."
-    assert isinstance(
-        label1, torch.Tensor
-    ), "Label for the first item should still be a Tensor."
-    expected_label1 = torch.tensor(
-        [1.0, 0.0], dtype=torch.float32
-    )  # Corresponds to img1 (catA)
-    assert torch.equal(
-        label1, expected_label1
-    ), "Label for the first item is incorrect."
+    assert isinstance(label1, torch.Tensor), "Label for the first item should still be a Tensor."
+    expected_label1 = torch.tensor([1.0, 0.0], dtype=torch.float32)  # Corresponds to img1 (catA)
+    assert torch.equal(label1, expected_label1), "Label for the first item is incorrect."
 
     # Second image should be processed normally
     img2, label2 = dataset[1]
-    assert isinstance(
-        img2, torch.Tensor
-    ), "Image for the second item should be a Tensor."
+    assert isinstance(img2, torch.Tensor), "Image for the second item should be a Tensor."
     assert img2.shape == (3, 10, 10), "Image for the second item has unexpected shape."
-    expected_label2 = torch.tensor(
-        [0.0, 1.0], dtype=torch.float32
-    )  # Corresponds to img2 (catB)
-    assert torch.equal(
-        label2, expected_label2
-    ), "Label for the second item is incorrect."
+    expected_label2 = torch.tensor([0.0, 1.0], dtype=torch.float32)  # Corresponds to img2 (catB)
+    assert torch.equal(label2, expected_label2), "Label for the second item is incorrect."

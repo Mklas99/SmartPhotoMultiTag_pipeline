@@ -10,7 +10,7 @@ import torch.nn as nn
 from torchvision import models
 from torchvision.models import ResNet18_Weights, ResNet50_Weights
 
-from src.config import DEFAULT_CLASSES, ModelConfig
+from src.config import ModelConfig
 
 
 class PhotoTagNet(nn.Module):
@@ -62,9 +62,7 @@ class PhotoTagNet(nn.Module):
         # ---- EfficientNet-B0 via timm --------------------------------------
         elif name == "efficientnet_b0":
             if timm is None:
-                raise ImportError(
-                    "Install `timm` to use EfficientNet or other timm backbones."
-                )
+                raise ImportError("Install `timm` to use EfficientNet or other timm backbones.")
             # • In timm: num_classes=0 ⇒ no classifier layer is created.
             # • global_pool="avg"/"max" chooses how spatial dims are collapsed.
             model = timm.create_model(
@@ -90,9 +88,7 @@ class PhotoTagNet(nn.Module):
     def forward(self, x: torch.Tensor):
         feats = self.backbone(x)
         logits = self.classifier_head(feats)  # Use the new classifier_head
-        return (
-            logits  # will be passed to BCEWithLogitsLoss -> internally applies sigmoid
-        )
+        return logits  # will be passed to BCEWithLogitsLoss -> internally applies sigmoid
 
     # ----------------------------- WEIGHT INITIALIZATION -----------------------------
     def _init_head_weights(self) -> None:

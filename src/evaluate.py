@@ -2,7 +2,7 @@ import mlflow
 import numpy as np
 import torch
 
-from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, ModelConfig
+from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES
 from src.data.loader import load_data
 from src.models.basic_model import BasicMLC
 from src.utils.metrics import micro_f1

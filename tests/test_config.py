@@ -4,14 +4,10 @@ import numpy as np
 from PIL import Image
 
 from src.config import (
-    BATCH_SIZE,
     CHECKPOINT_DIR,
     DEFAULT_CLASSES,
     IMAGE_SIZE,
-    MEAN,
-    NUM_WORKERS,
     RESULTS_DIR,
-    STD,
     ModelConfig,
     OptimConfig,
     TrainConfig,
@@ -20,16 +16,6 @@ from src.config import (
     train_transforms,
     val_transforms,
 )
-
-
-def test_train_config():
-    cfg = TrainConfig()
-    assert cfg.epochs > 0
-    assert cfg.seed == 42
-
-
-def test_classes_present():
-    assert "person" in DEFAULT_CLASSES
 
 
 def test_train_config():

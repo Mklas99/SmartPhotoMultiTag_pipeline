@@ -8,13 +8,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 
 import fiftyone as fo
-import numpy as np
 import torch
 from PIL import Image
 from tqdm import tqdm
 
 from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, ModelConfig, train_transforms
-from src.data import loader as data_loader
 from src.models.PhotoTagNet_model import PhotoTagNet
 
 # --- Config ---

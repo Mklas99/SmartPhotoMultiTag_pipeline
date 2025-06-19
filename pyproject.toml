@@ -10,8 +10,19 @@ description = "..."
 [tool.setuptools]
 packages = ["src"]
 
+# ───── formatters ──────────────────────────────────────────
+[tool.black]
+line-length = 150
+
 [tool.isort]
-profile = "black"   # 88-char lines, compatible wrapping
-line_length = 88
-multi_line_output = 3
+profile               = "black"
+line_length           = 150
+multi_line_output     = 3
 include_trailing_comma = true
+
+# ───── Ruff (formatter + linter) ──────────────────────────
+[tool.ruff]
+line-length = 150 
+
+[tool.ruff.lint]
+extend-ignore = ["F821", "E402"]

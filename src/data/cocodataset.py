@@ -1,5 +1,4 @@
 import json
-import os
 import warnings
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -31,9 +30,7 @@ class CocoDataset(Dataset):
         self.target_category_names = target_category_names
 
         if not self.annotations_file.exists():
-            raise FileNotFoundError(
-                f"Annotation file not found: {self.annotations_file}"
-            )
+            raise FileNotFoundError(f"Annotation file not found: {self.annotations_file}")
 
         with open(self.annotations_file, "r") as f:
             data = json.load(f)
@@ -100,9 +97,7 @@ class CocoDataset(Dataset):
             selected_categories = [
                 cat for cat in categories if cat["name"] in self.target_category_names
             ]
-            selected_categories.sort(
-                key=lambda x: self.target_category_names.index(x["name"])
-            )
+            selected_categories.sort(key=lambda x: self.target_category_names.index(x["name"]))
         else:
             selected_categories = sorted(categories, key=lambda x: x["id"])
 

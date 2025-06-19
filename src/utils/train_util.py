@@ -12,7 +12,6 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from src.config import OptimConfig
-from src.utils.average_meter import AverageMeter
 from src.utils.metrics import macro_f1, mAP, micro_f1, precision_at_k, roc_auc
 from src.utils.plot import save_confusion_matrix, save_roc_curves
 
@@ -103,9 +102,7 @@ def _validate(
     all_losses, all_preds_scores, all_gts = [], [], []
 
     with torch.no_grad():  # Disable gradient computation for validation
-        progress_bar_val = tqdm(
-            loader, desc=f"Epoch {epoch_nbr} [Validation]", unit="batch"
-        )
+        progress_bar_val = tqdm(loader, desc=f"Epoch {epoch_nbr} [Validation]", unit="batch")
         for imgs, labels in progress_bar_val:  # Iterate over unpacked batches
             imgs, labels = imgs.to(device), labels.to(device)
 
@@ -142,20 +139,14 @@ def _validate(
             cm_img = save_confusion_matrix(
                 y_true, y_score, title=f"macro F1 {metrics['macro_F1']:.3f}"
             )
-            roc_img = save_roc_curves(
-                y_true, y_score, title=f"macro F1 {metrics['macro_F1']:.3f}"
-            )
+            roc_img = save_roc_curves(y_true, y_score, title=f"macro F1 {metrics['macro_F1']:.3f}")
             if mlflow.active_run():  # Check if there's an active MLflow run
                 mlflow.log_artifact(str(cm_img))
                 mlflow.log_artifact(str(roc_img))
             else:
-                warnings.warn(
-                    "No active MLflow run. Skipping artifact logging for plots."
-                )
+                warnings.warn("No active MLflow run. Skipping artifact logging for plots.")
         except Exception as e:
-            warnings.warn(
-                f"Error during diagnostic plot generation or MLflow logging: {e}"
-            )
+            warnings.warn(f"Error during diagnostic plot generation or MLflow logging: {e}")
 
     return float(np.mean(all_losses)), metrics
 

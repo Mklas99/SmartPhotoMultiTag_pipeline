@@ -17,9 +17,7 @@ DEFAULT_CLASSES: List[str] = "person", "dog", "car", "bicycle", "cell phone", "l
 
 DATASET_ROOT = PROJECT_ROOT / "src" / "data" / "coco"
 DATASET_DIR = PROJECT_ROOT / "src" / "data" / "coco"
-META_PATH = (
-    PROJECT_ROOT / "src" / "data" / "coco" / "dataset_metadata.json"
-)  # Metadata summary
+META_PATH = PROJECT_ROOT / "src" / "data" / "coco" / "dataset_metadata.json"  # Metadata summary
 NOTEBOOK_PATH = PROJECT_ROOT / "notebooks"  # Jupytext file
 HTML_REPORT_PATH = NOTEBOOK_PATH.with_suffix(".html")  # nbconvert output
 
@@ -48,9 +46,7 @@ train_transforms = T.Compose(
 
 val_transforms = T.Compose(
     [
-        T.Resize(
-            IMAGE_SIZE + 32
-        ),  # Standard practice: resize to slightly larger, then center crop
+        T.Resize(IMAGE_SIZE + 32),  # Standard practice: resize to slightly larger, then center crop
         T.CenterCrop(IMAGE_SIZE),
         T.ToTensor(),
         T.Normalize(mean=MEAN, std=STD),

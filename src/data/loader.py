@@ -17,7 +17,6 @@ from torch.utils.data import DataLoader
 
 from src.config import (
     BATCH_SIZE,
-    DATASET_DIR,
     DATASET_ROOT,
     DEFAULT_CLASSES,
     IMAGE_CNT,
@@ -94,9 +93,7 @@ def load_dataset(
 def filter_categories(dataset: fo.Dataset, classes: List[str]) -> fo.DatasetView:
     """Return a view containing only labels whose class is in *classes*."""
     logger.info("Filtering dataset to %d target classes", len(classes))
-    view = dataset.filter_labels(
-        "ground_truth", F("label").is_in(classes), only_matches=True
-    )
+    view = dataset.filter_labels("ground_truth", F("label").is_in(classes), only_matches=True)
     logger.info("View retains %d samples after label filtering", len(view))
     return view
 
@@ -139,9 +136,7 @@ def make_splits(
         class_view = dataset.filter_labels("ground_truth", F("label") == cls_name)
         ids_for_current_class = class_view.values("id")
 
-        unassigned_for_cls = [
-            sid for sid in ids_for_current_class if sid not in assigned_ids
-        ]
+        unassigned_for_cls = [sid for sid in ids_for_current_class if sid not in assigned_ids]
         random.shuffle(unassigned_for_cls)
 
         n_cls_unassigned = len(unassigned_for_cls)
@@ -152,9 +147,7 @@ def make_splits(
         num_val_cls = int(val_prop * n_cls_unassigned)
 
         current_cls_train_ids = unassigned_for_cls[:num_train_cls]
-        current_cls_val_ids = unassigned_for_cls[
-            num_train_cls : num_train_cls + num_val_cls
-        ]
+        current_cls_val_ids = unassigned_for_cls[num_train_cls : num_train_cls + num_val_cls]
         current_cls_test_ids = unassigned_for_cls[num_train_cls + num_val_cls :]
 
         train_ids_final.extend(current_cls_train_ids)
@@ -164,13 +157,9 @@ def make_splits(
         assigned_ids.update(unassigned_for_cls)
 
     # Handle samples not covered by the class-based stratification (e.g., no labels, or all labels processed)
-    remaining_unassigned_ids = [
-        sid for sid in all_sample_ids if sid not in assigned_ids
-    ]
+    remaining_unassigned_ids = [sid for sid in all_sample_ids if sid not in assigned_ids]
     if remaining_unassigned_ids:
-        logger.info(
-            f"Distributing {len(remaining_unassigned_ids)} remaining samples randomly..."
-        )
+        logger.info(f"Distributing {len(remaining_unassigned_ids)} remaining samples randomly...")
         random.shuffle(remaining_unassigned_ids)
 
         n_remaining = len(remaining_unassigned_ids)
@@ -178,9 +167,7 @@ def make_splits(
         num_val_rem = int(val_prop * n_remaining)
 
         train_ids_final.extend(remaining_unassigned_ids[:num_train_rem])
-        val_ids_final.extend(
-            remaining_unassigned_ids[num_train_rem : num_train_rem + num_val_rem]
-        )
+        val_ids_final.extend(remaining_unassigned_ids[num_train_rem : num_train_rem + num_val_rem])
         test_ids_final.extend(remaining_unassigned_ids[num_train_rem + num_val_rem :])
 
     # Using set to count unique IDs, though construction should ensure disjoint sets.
@@ -197,9 +184,7 @@ def make_splits(
 
 
 # ----------------------------- COCO‑format export -----------------------------
-def export_splits(
-    views: Dict[str, fo.DatasetView], export_root: Path = DATASET_ROOT
-) -> None:
+def export_splits(views: Dict[str, fo.DatasetView], export_root: Path = DATASET_ROOT) -> None:
     export_root.mkdir(parents=True, exist_ok=True)
     for split, view in views.items():
         out_dir = export_root / split
@@ -325,9 +310,7 @@ def dataset_already_prepared(
     # Check if the number of samples is sufficient
     total_samples = len(train_data.get("images", [])) + len(val_data.get("images", []))
     if max_samples is not None and total_samples < max_samples:
-        logger.info(
-            f"Dataset has only {total_samples} samples, less than requested {max_samples}."
-        )
+        logger.info(f"Dataset has only {total_samples} samples, less than requested {max_samples}.")
         return False
 
     # Check if the classes match
@@ -336,9 +319,7 @@ def dataset_already_prepared(
         train_categories = {cat["name"] for cat in train_data.get("categories", [])}
         val_categories = {cat["name"] for cat in val_data.get("categories", [])}
 
-        if not set(classes).issubset(train_categories) or not set(classes).issubset(
-            val_categories
-        ):
+        if not set(classes).issubset(train_categories) or not set(classes).issubset(val_categories):
             logger.info(f"Dataset classes do not match requested classes {classes}.")
             return False
 

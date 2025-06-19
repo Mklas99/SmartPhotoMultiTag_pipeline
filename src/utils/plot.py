@@ -83,9 +83,7 @@ def save_sample_preds(
     """Save a grid of n validation images + predicted top-5(max) tags."""
     # First, ensure 'n' is not negative. and avlidation dataset is not empty.
     if len(val_ds) == 0:
-        print(
-            "Warning: Validation dataset is empty. No samples will be selected for plotting."
-        )
+        print("Warning: Validation dataset is empty. No samples will be selected for plotting.")
         idxs = []
 
     if n < 0:

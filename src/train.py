@@ -1,36 +1,28 @@
 import os
 import time
-from socket import BTPROTO_RFCOMM
 
 import mlflow
 import numpy as np
 import torch
 import yaml
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
 from src import config
 from src.config import (
     BATCH_SIZE,
     CHECKPOINT_DIR,
-    DATASET_ROOT,
     IMAGE_CNT,
     NUM_WORKERS,
     RESULTS_DIR,
     ModelConfig,
     OptimConfig,
     TrainConfig,
-    train_transforms,
-    val_transforms,
 )
-from src.data.loader import CocoDataset, collate_fn, load_data, prepare_dataset
-from src.models.basic_model import BasicMLC
+from src.data.loader import load_data
 from src.models.PhotoTagNet_model import PhotoTagNet
 from src.utils.plot import (
-    save_confusion_matrix,
     save_loss_plot,
-    save_roc_curves,
     save_sample_preds,
 )
 from src.utils.seed import set_seed
@@ -71,9 +63,7 @@ def run_training(
 
     # ---- MLflow ----
     mlflow.set_experiment("photo-tagger-experiment200")
-    with mlflow.start_run(
-        run_name="photo-tagger-experiment200" + time.strftime("%Y%m%d-%H%M%S")
-    ):
+    with mlflow.start_run(run_name="photo-tagger-experiment200" + time.strftime("%Y%m%d-%H%M%S")):
 
         # ----------------------------- DATA / DATALOADERS -----------------------------
         num_classes = config.get_num_classes(custom_classes)
@@ -85,9 +75,7 @@ def run_training(
             batch_size=BATCH_SIZE,
             num_workers=NUM_WORKERS,
         )
-        print(
-            f"Data loaded. Train batches: {len(train_loader)}, Val batches: {len(val_loader)}"
-        )
+        print(f"Data loaded. Train batches: {len(train_loader)}, Val batches: {len(val_loader)}")
 
         # ----------------------------- MODEL, OPT & SCHEDULER -----------------------------
         print("Building model, optimizer and scheduler...")
@@ -203,17 +191,13 @@ def run_training(
             mlflow.log_artifact(str(loss_data_path))
             print(f"Loss data exported to {loss_data_path}")
 
-        mlflow.log_artifact(
-            str(RESULTS_DIR / "config.yaml"), artifact_path="run_config"
-        )
+        mlflow.log_artifact(str(RESULTS_DIR / "config.yaml"), artifact_path="run_config")
         mlflow.end_run()
         print("Training completed and logged to MLflow.")
         print(f"Best validation macro-F1: {best_val:.4f} at epoch {epoch}")
 
         # Save the best performing checkpoint as model
-        best_ckpt = max(
-            CHECKPOINT_DIR.glob("best_epoch_*.pt"), key=os.path.getctime, default=None
-        )
+        best_ckpt = max(CHECKPOINT_DIR.glob("best_epoch_*.pt"), key=os.path.getctime, default=None)
         if best_ckpt:
             model_save_path = RESULTS_DIR / "best_model.pt"
             torch.save(torch.load(best_ckpt), model_save_path)
