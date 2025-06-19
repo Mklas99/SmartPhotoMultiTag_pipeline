@@ -26,7 +26,7 @@ def test_train_config():
 
 def test_classes_present():
     assert "person" in DEFAULT_CLASSES
-    assert isinstance(DEFAULT_CLASSES, list)
+    assert isinstance(DEFAULT_CLASSES, tuple)
 
 
 def test_model_config_defaults():
