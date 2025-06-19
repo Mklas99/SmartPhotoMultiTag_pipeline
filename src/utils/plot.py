@@ -8,10 +8,12 @@ import random
 import string
 from pathlib import Path
 from typing import List
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from sklearn.metrics import precision_recall_curve, confusion_matrix
+from sklearn.metrics import confusion_matrix, precision_recall_curve
+
 from src import config
 from src.data.cocodataset import CocoDataset
 

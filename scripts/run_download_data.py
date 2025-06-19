@@ -1,12 +1,12 @@
+import argparse
 import os
 import sys
-import argparse
 
 # Add the project root directory to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.data.loader import prepare_dataset
 from src.config import DEFAULT_CLASSES, IMAGE_CNT
+from src.data.loader import prepare_dataset
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download and prepare COCO dataset.")

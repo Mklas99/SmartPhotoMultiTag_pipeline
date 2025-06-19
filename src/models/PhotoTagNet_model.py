@@ -3,12 +3,14 @@ PhotoTagNet – for multi-label tagging.
 """
 
 from __future__ import annotations
+
 import timm
 import torch
 import torch.nn as nn
 from torchvision import models
 from torchvision.models import ResNet18_Weights, ResNet50_Weights
-from src.config import ModelConfig, DEFAULT_CLASSES
+
+from src.config import DEFAULT_CLASSES, ModelConfig
 
 
 class PhotoTagNet(nn.Module):

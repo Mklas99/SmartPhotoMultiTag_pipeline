@@ -1,8 +1,11 @@
-import mlflow, torch, numpy as np
-from src.models.basic_model import BasicMLC
-from src.utils.metrics import micro_f1
+import mlflow
+import numpy as np
+import torch
+
 from src.config import CHECKPOINT_DIR, DEFAULT_CLASSES, ModelConfig
 from src.data.loader import load_data
+from src.models.basic_model import BasicMLC
+from src.utils.metrics import micro_f1
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

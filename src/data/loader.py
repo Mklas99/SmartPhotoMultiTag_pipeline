@@ -2,29 +2,31 @@
 
 from __future__ import annotations
 
-import json, logging, datetime
-from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+import datetime
+import json
+import logging
 import random
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
 import fiftyone as fo
-import fiftyone.zoo as foz
 import fiftyone.types as fot
+import fiftyone.zoo as foz
 from fiftyone import ViewField as F
 from torch.utils.data import DataLoader
 
 from src.config import (
-    DEFAULT_CLASSES,
+    BATCH_SIZE,
     DATASET_DIR,
     DATASET_ROOT,
-    META_PATH,
+    DEFAULT_CLASSES,
     IMAGE_CNT,
-    BATCH_SIZE,
+    META_PATH,
     NUM_WORKERS,
     train_transforms,
     val_transforms,
 )
 from src.data.cocodataset import CocoDataset, collate_fn
-
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)

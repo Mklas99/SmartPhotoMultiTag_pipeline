@@ -1,18 +1,20 @@
+import warnings
+from typing import Dict, Tuple
+
+import mlflow
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.optim import AdamW, SGD
-from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau, CosineAnnealingLR
+from torch.optim import SGD, AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau, StepLR
 from torch.utils.data import DataLoader
-import numpy as np
-from typing import Tuple, Dict
 from tqdm import tqdm
-import mlflow
-from src.utils.metrics import macro_f1, micro_f1, precision_at_k, mAP, roc_auc
-from src.utils.plot import save_confusion_matrix, save_roc_curves
-from src.utils.average_meter import AverageMeter
+
 from src.config import OptimConfig
-import warnings
+from src.utils.average_meter import AverageMeter
+from src.utils.metrics import macro_f1, mAP, micro_f1, precision_at_k, roc_auc
+from src.utils.plot import save_confusion_matrix, save_roc_curves
 
 
 def _build_optimizer(net: nn.Module, cfg: OptimConfig):

@@ -1,14 +1,16 @@
-import os
 import json
+import os
 import warnings
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict
-from src import config
+from typing import Dict, List, Optional, Tuple
+
 import torch
+from PIL import Image, UnidentifiedImageError
 from torch import Tensor
 from torch.utils.data import Dataset
 from torchvision import transforms
-from PIL import Image, UnidentifiedImageError
+
+from src import config
 
 
 class CocoDataset(Dataset):

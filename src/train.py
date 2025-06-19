@@ -1,17 +1,19 @@
 import os
-from socket import BTPROTO_RFCOMM
 import time
+from socket import BTPROTO_RFCOMM
+
+import mlflow
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-import mlflow
-from tqdm.auto import tqdm
 import yaml
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
 
 from src import config
 from src.config import (
     BATCH_SIZE,
+    CHECKPOINT_DIR,
     DATASET_ROOT,
     IMAGE_CNT,
     NUM_WORKERS,
@@ -19,25 +21,24 @@ from src.config import (
     ModelConfig,
     OptimConfig,
     TrainConfig,
-    CHECKPOINT_DIR,
     train_transforms,
     val_transforms,
 )
-from src.data.loader import load_data, CocoDataset, collate_fn, prepare_dataset
+from src.data.loader import CocoDataset, collate_fn, load_data, prepare_dataset
 from src.models.basic_model import BasicMLC
 from src.models.PhotoTagNet_model import PhotoTagNet
-from src.utils.seed import set_seed
 from src.utils.plot import (
-    save_loss_plot,
-    save_sample_preds,
     save_confusion_matrix,
+    save_loss_plot,
     save_roc_curves,
+    save_sample_preds,
 )
+from src.utils.seed import set_seed
 from src.utils.train_util import (
-    _run_one_epoch,
-    _validate,
     _build_optimizer,
     _build_scheduler,
+    _run_one_epoch,
+    _validate,
 )
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

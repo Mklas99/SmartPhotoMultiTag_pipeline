@@ -4,13 +4,13 @@ Multi-label metrics handy for training & validation.
 
 from __future__ import annotations
 
+import numpy as np
 import torch
 from sklearn.metrics import (
-    f1_score,
     average_precision_score,
+    f1_score,
     roc_auc_score,
 )
-import numpy as np
 
 
 @torch.no_grad()
