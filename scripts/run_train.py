@@ -109,9 +109,7 @@ def main():
         train_cfg.report = args.report
 
     print("Effective configurations for this run:")
-    print(
-        f"  Global: IMAGE_CNT={config.IMAGE_CNT}, IMAGE_SIZE={config.IMAGE_SIZE}, BATCH_SIZE={config.BATCH_SIZE}, NUM_WORKERS={config.NUM_WORKERS}"
-    )
+    print(f"  Global: IMAGE_CNT={config.IMAGE_CNT}, IMAGE_SIZE={config.IMAGE_SIZE}, BATCH_SIZE={config.BATCH_SIZE}, NUM_WORKERS={config.NUM_WORKERS}")
     print(f"  ModelConfig: {model_cfg}")
     print(f"  OptimConfig: {optim_cfg}")
     print(f"  TrainConfig: {train_cfg}")

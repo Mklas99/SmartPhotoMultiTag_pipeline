@@ -77,9 +77,7 @@ def save_roc_curves(y_true, y_score, title="") -> Path:
     return path
 
 
-def save_sample_preds(
-    model, val_ds: CocoDataset, device, class_names: List[str], title="", n: int = 6
-) -> Path:
+def save_sample_preds(model, val_ds: CocoDataset, device, class_names: List[str], title="", n: int = 6) -> Path:
     """Save a grid of n validation images + predicted top-5(max) tags."""
     # First, ensure 'n' is not negative. and avlidation dataset is not empty.
     if len(val_ds) == 0:
@@ -87,9 +85,7 @@ def save_sample_preds(
         idxs = []
 
     if n < 0:
-        print(
-            f"Warning: The desired number of samples 'n' is negative ({n}). Will attempt to sample 0 items."
-        )
+        print(f"Warning: The desired number of samples 'n' is negative ({n}). Will attempt to sample 0 items.")
         n = 0
     else:
         n = n

@@ -30,9 +30,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    print(
-        f"Preparing dataset with max_samples={args.max_samples}, classes={args.classes}, seed={args.seed}"
-    )
+    print(f"Preparing dataset with max_samples={args.max_samples}, classes={args.classes}, seed={args.seed}")
     prepare_dataset(
         classes=args.classes,
         max_samples=args.max_samples,

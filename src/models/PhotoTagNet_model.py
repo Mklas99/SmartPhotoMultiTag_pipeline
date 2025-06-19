@@ -44,18 +44,14 @@ class PhotoTagNet(nn.Module):
         # ---- ResNet18 ------------------------------------------------------
         if name == "resnet18":
             # • We grab official ImageNet weights when requested, else random.
-            model = models.resnet18(
-                weights=ResNet18_Weights.DEFAULT if self.cfg.pretrained else None
-            )
+            model = models.resnet18(weights=ResNet18_Weights.DEFAULT if self.cfg.pretrained else None)
             feat_dim = model.fc.in_features  # 512 for resnet18
             #   Chop off original classifier and flatten spatial dims.
             backbone = nn.Sequential(*list(model.children())[:-1], nn.Flatten(1))
 
         # ---- ResNet50 ------------------------------------------------------
         elif name == "resnet50":
-            model = models.resnet50(
-                weights=ResNet50_Weights.IMAGENET1K_V2 if self.cfg.pretrained else None
-            )
+            model = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V2 if self.cfg.pretrained else None)
             feat_dim = model.fc.in_features  # 2048 for resnet50
             backbone = nn.Sequential(*list(model.children())[:-1], nn.Flatten(1))
 

@@ -108,12 +108,8 @@ def _validate(
 
             logits = net(imgs)
             # Compute binary cross-entropy loss
-            pos_weight = compute_reweight_vector(
-                loader.dataset.get_label_counts()
-            )  # Reweighting vector based on label frequencies
-            loss = F.binary_cross_entropy_with_logits(
-                logits, labels, pos_weight=pos_weight.to(device)
-            )
+            pos_weight = compute_reweight_vector(loader.dataset.get_label_counts())  # Reweighting vector based on label frequencies
+            loss = F.binary_cross_entropy_with_logits(logits, labels, pos_weight=pos_weight.to(device))
             all_losses.append(loss.item())
             val_running_loss += loss.item()
             progress_bar_val.set_postfix(loss=loss.item())
@@ -136,9 +132,7 @@ def _validate(
     # diagnostic plots
     if do_plots:
         try:
-            cm_img = save_confusion_matrix(
-                y_true, y_score, title=f"macro F1 {metrics['macro_F1']:.3f}"
-            )
+            cm_img = save_confusion_matrix(y_true, y_score, title=f"macro F1 {metrics['macro_F1']:.3f}")
             roc_img = save_roc_curves(y_true, y_score, title=f"macro F1 {metrics['macro_F1']:.3f}")
             if mlflow.active_run():  # Check if there's an active MLflow run
                 mlflow.log_artifact(str(cm_img))

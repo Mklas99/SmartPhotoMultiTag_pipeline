@@ -52,9 +52,7 @@ for sample in tqdm(test_view):
 
     predicted_labels = [LABELS[i] for i, flag in enumerate(preds) if flag]
 
-    sample["predictions"] = fo.Classifications(
-        classifications=[fo.Classification(label=label) for label in predicted_labels]
-    )
+    sample["predictions"] = fo.Classifications(classifications=[fo.Classification(label=label) for label in predicted_labels])
     sample.save()
 
 # --- Launch FiftyOne App ---

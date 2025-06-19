@@ -13,9 +13,7 @@ from ..src.data.cocodataset import CocoDataset
 
 
 # Helper function to create a dummy annotation file
-def _create_dummy_annotations_file(
-    filepath: Path, images_data: list, annotations_data: list, categories_data: list
-):
+def _create_dummy_annotations_file(filepath: Path, images_data: list, annotations_data: list, categories_data: list):
     content = {
         "images": images_data,
         "annotations": annotations_data,

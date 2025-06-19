@@ -166,9 +166,7 @@ def run_training(
             else:
                 patience_left -= 1
 
-            print(
-                f"Epoch {epoch+1}/{train_cfg.epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}"
-            )
+            print(f"Epoch {epoch+1}/{train_cfg.epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
             if patience_left == 0:
                 print("Early stopping – no improvement.")
@@ -176,9 +174,7 @@ def run_training(
 
         if generate_report:
             # Save final loss curve
-            save_loss_plot_path = save_loss_plot(
-                train_losses, val_losses, "Training & Validation Loss"
-            )
+            save_loss_plot_path = save_loss_plot(train_losses, val_losses, "Training & Validation Loss")
             mlflow.log_artifact(str(save_loss_plot_path))
             print(f"Loss curve saved to {save_loss_plot_path}")
 

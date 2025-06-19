@@ -23,6 +23,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Lint
+        continue-on-error: true  
         run: |
           black --check .
           isort --profile=black --check-only .

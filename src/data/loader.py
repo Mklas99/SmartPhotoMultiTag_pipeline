@@ -99,9 +99,7 @@ def filter_categories(dataset: fo.Dataset, classes: List[str]) -> fo.DatasetView
 
 
 # ----------------------------- Deterministic random split -----------------------------
-def make_splits(
-    dataset: fo.Dataset, seed: int = 42, label_classes=DEFAULT_CLASSES
-) -> Dict[str, fo.DatasetView]:
+def make_splits(dataset: fo.Dataset, seed: int = 42, label_classes=DEFAULT_CLASSES) -> Dict[str, fo.DatasetView]:
     """Tag samples train/val/test ≈ 70/20/10 and return views."""
     logger.info("Creating train/val/test tags (seed=%d)…", seed)
     random.seed(seed)
@@ -115,9 +113,7 @@ def make_splits(
     for tag_to_clear in ("train", "val", "test"):
         view_with_tag = dataset.match_tags(tag_to_clear)
         if len(view_with_tag) > 0:  # only untag if there are samples with this tag
-            logger.info(
-                f"Clearing existing tag '{tag_to_clear}' from {len(view_with_tag)} samples."
-            )
+            logger.info(f"Clearing existing tag '{tag_to_clear}' from {len(view_with_tag)} samples.")
             view_with_tag.untag_samples(tag_to_clear)
 
     train_ids_final = []
@@ -125,9 +121,7 @@ def make_splits(
     test_ids_final = []
     assigned_ids = set()
 
-    sorted_classes = sorted(
-        list(set(label_classes))
-    )  # Use set to ensure unique classes before sorting
+    sorted_classes = sorted(list(set(label_classes)))  # Use set to ensure unique classes before sorting
     logger.info(f"Stratifying across {len(sorted_classes)} classes: {sorted_classes}")
 
     for cls_name in sorted_classes:
@@ -199,9 +193,7 @@ def export_splits(views: Dict[str, fo.DatasetView], export_root: Path = DATASET_
 
 
 # ----------------------------- Metadata serialisation -----------------------------
-def write_metadata(
-    dataset: fo.Dataset, views: Dict[str, fo.DatasetView], path: Path = META_PATH
-) -> None:
+def write_metadata(dataset: fo.Dataset, views: Dict[str, fo.DatasetView], path: Path = META_PATH) -> None:
     # Ensure the parent directory exists
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -246,9 +238,7 @@ def load_data(
     val_img_dir = DATASET_ROOT / "val" / "data"
     val_ann_file = DATASET_ROOT / "val" / "labels.json"
 
-    if not dataset_already_prepared(
-        train_img_dir, train_ann_file, val_img_dir, val_ann_file, classes, max_samples
-    ):
+    if not dataset_already_prepared(train_img_dir, train_ann_file, val_img_dir, val_ann_file, classes, max_samples):
         logger.info("Existing COCO export not sufficient. Running data preparation...")
         prepare_dataset(classes=DEFAULT_CLASSES, max_samples=IMAGE_CNT)
         logger.info("Data preparation complete.")
@@ -285,16 +275,9 @@ def load_data(
     return train_dataset, val_dataset, train_loader, val_loader
 
 
-def dataset_already_prepared(
-    train_img_dir, train_ann_file, val_img_dir, val_ann_file, classes, max_samples
-):
+def dataset_already_prepared(train_img_dir, train_ann_file, val_img_dir, val_ann_file, classes, max_samples):
     # Check if the COCO export exists
-    if not (
-        train_img_dir.exists()
-        and train_ann_file.exists()
-        and val_img_dir.exists()
-        and val_ann_file.exists()
-    ):
+    if not (train_img_dir.exists() and train_ann_file.exists() and val_img_dir.exists() and val_ann_file.exists()):
         logger.info("COCO export not found.")
         return False
 

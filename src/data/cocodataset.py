@@ -39,12 +39,10 @@ class CocoDataset(Dataset):
         if not self.valid_images:
             raise RuntimeError("No valid images found in dataset.")
 
-        (self.image_ids, self.id_to_filename, self.labels, self.category_names) = (
-            self._parse_annotations(
-                image_metadata_list=self.valid_images,
-                categories=data["categories"],
-                annotations=data.get("annotations", []),
-            )
+        (self.image_ids, self.id_to_filename, self.labels, self.category_names) = self._parse_annotations(
+            image_metadata_list=self.valid_images,
+            categories=data["categories"],
+            annotations=data.get("annotations", []),
         )
 
         if self.transform is None:
@@ -94,9 +92,7 @@ class CocoDataset(Dataset):
 
         # Category handling
         if self.target_category_names:
-            selected_categories = [
-                cat for cat in categories if cat["name"] in self.target_category_names
-            ]
+            selected_categories = [cat for cat in categories if cat["name"] in self.target_category_names]
             selected_categories.sort(key=lambda x: self.target_category_names.index(x["name"]))
         else:
             selected_categories = sorted(categories, key=lambda x: x["id"])
