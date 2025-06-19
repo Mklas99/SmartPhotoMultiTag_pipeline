@@ -58,8 +58,8 @@ def run_training(
             yaml.dump(config.as_flat_dict(), f)
 
     # ---- MLflow ----
-    mlflow.set_experiment("photo-tagger-experiment")
-    with mlflow.start_run(run_name="photo-tagger-experiment" + time.strftime("%Y%m%d-%H%M%S")):
+    mlflow.set_experiment("photo-tagger-experiment200")
+    with mlflow.start_run(run_name="photo-tagger-experiment200" + time.strftime("%Y%m%d-%H%M%S")):
         
         # ----------------------------- DATA / DATALOADERS -----------------------------
         num_classes = config.get_num_classes(custom_classes)
@@ -121,9 +121,9 @@ def run_training(
             mlflow.log_metric("train_loss", train_loss, step=epoch)
             mlflow.log_metric("val_loss", val_loss, step=epoch)
 
-            if generate_report:
-                save_loss_plot_path = save_loss_plot(train_loss, val_loss, titel=f"epoch_{epoch}_of_{train_cfg.epochs}")
-                mlflow.log_artifact(str(save_loss_plot_path))
+            # if generate_report:
+            #     save_loss_plot_path = save_loss_plot(train_loss, val_loss, titel=f"epoch_{epoch}_of_{train_cfg.epochs}")
+            #     mlflow.log_artifact(str(save_loss_plot_path))
 
             for k, v in val_metrics.items():
                 mlflow.log_metric(k, v, step=epoch)
@@ -156,6 +156,21 @@ def run_training(
                 print("Early stopping – no improvement.")
                 break
                 
+        if generate_report:
+            # Save final loss curve
+            save_loss_plot_path = save_loss_plot(train_losses, val_losses, "Training & Validation Loss")
+            mlflow.log_artifact(str(save_loss_plot_path))
+            print(f"Loss curve saved to {save_loss_plot_path}")
+
+            # Export loss data to a .txt file
+            loss_data_path = RESULTS_DIR / "loss_data.txt"
+            with open(loss_data_path, "w") as f:
+                f.write("Epoch,TrainLoss,ValLoss\n")
+                for i, (t_loss, v_loss) in enumerate(zip(train_losses, val_losses)):
+                    f.write(f"{i+1},{t_loss:.4f},{v_loss:.4f}\n")
+            mlflow.log_artifact(str(loss_data_path))
+            print(f"Loss data exported to {loss_data_path}")
+
         mlflow.log_artifact(str(RESULTS_DIR / "config.yaml"), artifact_path="run_config")
         mlflow.end_run()
         print("Training completed and logged to MLflow.")

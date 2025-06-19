@@ -6,13 +6,13 @@ from torchvision import transforms as T
 # -------- Project Root --------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-IMAGE_CNT: int = 800
+IMAGE_CNT: int = 5000
 # -------- Core hyper‑parameters --------
-IMAGE_SIZE: int = 100
-BATCH_SIZE: int = 16
+IMAGE_SIZE: int = 200
+BATCH_SIZE: int = 64
 NUM_WORKERS: int = 6
 
-DEFAULT_CLASSES: List[str] = 'person', 'dog' , 'cat', 'car', 'bus', 'bicycle', 'cell phone', 'laptop'
+DEFAULT_CLASSES: List[str] = 'person', 'dog' , 'car', 'bicycle', 'cell phone', 'laptop'
 
 DATASET_ROOT = PROJECT_ROOT / "src" / "data" / "coco"
 DATASET_DIR = PROJECT_ROOT / "src" / "data" / "coco"

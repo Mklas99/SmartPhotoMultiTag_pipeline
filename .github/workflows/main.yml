@@ -6,26 +6,46 @@ on:
       - main
   pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
     inputs:
       max-samples:
-        description: "Limit training samples"
-        required: false
+        description: Limit training samples
         default: "50"
       report:
         type: boolean
-        description: "Generate evaluation report?"
+        description: Generate evaluation report?
         default: true
+      image-size:
+        description: Size of the images
+        default: "100"
+      batch-size:
+        description: Batch size for training
+        default: "32"
+      num-workers:
+        description: Number of workers for data loading
+        default: "8"
+      backbone:
+        description: Model backbone
+        default: "resnet18"
+        type: choice
+        options:
+        - resnet18
+        - resnet50
+        - efficientnet_b0
+      epochs:
+        description: Number of training epochs
+        default: "30"
+      early-stop-patience:
+        description: Patience for early stopping
+        default: "7"
 
 # ────────────────────────────
 jobs:
   run-pipeline:
     runs-on:  # <- label filter
       - self-hosted             
-      - linux                 
-      - x64                     
-      # - gpu
+      - Linux                 
       
     defaults:
       run:
@@ -52,4 +72,21 @@ jobs:
         run: |
           python scripts/run_pipeline.py \
             --max-samples "${{ github.event.inputs.max-samples || '50' }}" \
+            --image-size "${{ github.event.inputs.image-size || '100' }}" \
+            --batch-size "${{ github.event.inputs.batch-size || '32' }}" \
+            --num-workers "${{ github.event.inputs.num-workers || '8' }}" \
+            --backbone "${{ github.event.inputs.backbone || '50' }}" \
+            --epochs $env:EPOCHS "${{ github.event.inputs.backbone || '50' }}" \
+            --backbone "${{ github.event.inputs.backbone || '50' }}" \
+            --early-stop-patience "${{ github.event.inputs.early-stop-patience || '7' }}" \
             $([[ "${{ github.event.inputs.report }}" == 'true' ]] && echo --report)
+
+      # Upload training artifacts
+      - name: Upload training artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-artifacts
+          path: |
+            checkpoints/
+            results/
+            mlruns/

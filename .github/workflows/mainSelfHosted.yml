@@ -23,7 +23,7 @@ on:
         default: "8"
       backbone:
         description: Model backbone
-        default: "resnet50"
+        default: "resnet18"
         type: choice
         options:
         - resnet18
