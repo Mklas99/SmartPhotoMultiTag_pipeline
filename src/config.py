@@ -57,7 +57,7 @@ val_transforms = T.Compose(
 # -------- Config dataclasses --------
 @dataclass
 class ModelConfig:
-    backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet50"
+    backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet18"
     pretrained: bool = True
     freeze_backbone: bool = False
     dropout_rate: float = 0.3  # Dropout rate for classifier head
