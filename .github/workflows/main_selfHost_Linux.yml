@@ -1,0 +1,101 @@
+name: Photo-Tag self-hosted pipeline
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      max-samples:
+        description: Limit training samples
+        default: "50"
+      report:
+        type: boolean
+        description: Generate evaluation report?
+        default: true
+      image-size:
+        description: Size of the images
+        default: "100"
+      batch-size:
+        description: Batch size for training
+        default: "32"
+      num-workers:
+        description: Number of workers for data loading
+        default: "8"
+      backbone:
+        description: Model backbone
+        default: "resnet18"
+        type: choice
+        options:
+        - resnet18
+        - resnet50
+        - efficientnet_b0
+      epochs:
+        description: Number of training epochs
+        default: "30"
+      early-stop-patience:
+        description: Patience for early stopping
+        default: "7"
+
+jobs:
+  run-pipeline:
+    runs-on:
+      - self-hosted           
+      - Linux
+                  
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Check out repository ⇒ $GITHUB_WORKSPACE
+      - uses: actions/checkout@v4
+
+      # Set up Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          allow-download: false
+
+      # Install third-party deps + local package
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .        # editable install registers src/
+
+      # Run the pipeline
+      - name: Run pipeline
+        env:
+          MAX_SAMPLES: ${{ github.event.inputs.max-samples || '50' }}
+          REPORT:      ${{ github.event.inputs.report      || 'false' }}
+          IMAGE_SIZE:  ${{ github.event.inputs.image-size || '100' }}
+          BATCH_SIZE:  ${{ github.event.inputs.batch-size || '32' }}
+          NUM_WORKERS: ${{ github.event.inputs.num-workers || '8' }}
+          BACKBONE:    ${{ github.event.inputs.backbone || 'resnet50' }}
+          EPOCHS:      ${{ github.event.inputs.epochs || '30' }}
+          EARLY_STOP_PATIENCE: ${{ github.event.inputs.early-stop-patience || '7' }}
+        run: |
+          REPORT_FLAG=""
+          if [ "$REPORT" = "true" ]; then
+            REPORT_FLAG="--report"
+          fi
+
+          python scripts/run_pipeline.py \
+            --max-samples $MAX_SAMPLES \
+            --image-size $IMAGE_SIZE \
+            --batch-size $BATCH_SIZE \
+            --num-workers $NUM_WORKERS \
+            --backbone $BACKBONE \
+            --epochs $EPOCHS \
+            --early-stop-patience $EARLY_STOP_PATIENCE \
+            $REPORT_FLAG
+      
+      # Upload training artifacts
+      - name: Upload training artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-artifacts
+          path: |
+            checkpoints/
+            results/
+            mlruns/
