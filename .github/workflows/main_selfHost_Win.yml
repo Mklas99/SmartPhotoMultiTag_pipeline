@@ -1,4 +1,4 @@
-name: Photo-Tag self-hosted pipeline
+name: CI Win self-hosted
 
 on:
   push:
