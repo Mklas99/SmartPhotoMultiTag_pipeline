@@ -9,8 +9,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 IMAGE_CNT: int = 1000
 # -------- Core hyper‑parameters --------
-IMAGE_SIZE: int = 200
-BATCH_SIZE: int = 100
+IMAGE_SIZE: int = 100
+BATCH_SIZE: int = 32
 NUM_WORKERS: int = 6
 
 DEFAULT_CLASSES: List[str] = "person", "dog", "car", "bicycle", "cell phone", "laptop"

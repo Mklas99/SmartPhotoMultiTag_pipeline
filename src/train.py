@@ -62,8 +62,8 @@ def run_training(
             yaml.dump(config.as_flat_dict(), f)
 
     # ---- MLflow ----
-    mlflow.set_experiment("photo-tagger-experiment200")
-    with mlflow.start_run(run_name="photo-tagger-experiment200" + time.strftime("%Y%m%d-%H%M%S")):
+    mlflow.set_experiment("photo-tagger-experiment")
+    with mlflow.start_run(run_name="photo-tagger-experiment1k" + time.strftime("%Y%m%d-%H%M%S")):
 
         # ----------------------------- DATA / DATALOADERS -----------------------------
         num_classes = config.get_num_classes(custom_classes)

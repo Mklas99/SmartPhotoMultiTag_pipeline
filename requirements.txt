@@ -11,3 +11,4 @@ matplotlib
 fiftyone
 ipykernel
 black[jupyter]
+seaborn
