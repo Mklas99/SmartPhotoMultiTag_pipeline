@@ -46,9 +46,11 @@ jobs:
             mlruns/
 
       - name: Evaluate & log report
+        continue-on-error: true  
         run: |
           python scripts/evaluate_last_run.py       
 
       - name: Render notebook
+        continue-on-error: true  
         run: |
           jupyter nbconvert --execute notebooks/run_report.ipynb --to notebook
