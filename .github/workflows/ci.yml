@@ -47,8 +47,8 @@ jobs:
 
       - name: Evaluate & log report
         run: |
-          python evaluate_latest_run.py       
+          python scripts/evaluate_latest_run.py       
 
       - name: Render notebook
         run: |
-          jupyter nbconvert --execute validation_report.ipynb --to notebook
+          jupyter nbconvert --execute notebooks/run_report.ipynb --to notebook
