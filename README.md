@@ -1,5 +1,6 @@
 # SmartPhoto Multi-Tag Pipeline
 
+
 A fully reproducible ML pipeline for **multi-label image classification** (photo tagging).
 
 ## Table of Contents
