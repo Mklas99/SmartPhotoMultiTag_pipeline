@@ -47,7 +47,7 @@ jobs:
 
       - name: Evaluate & log report
         run: |
-          python scripts/evaluate_latest_run.py       
+          python scripts/evaluate_last_run.py       
 
       - name: Render notebook
         run: |
