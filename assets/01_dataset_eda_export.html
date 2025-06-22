@@ -7531,15 +7531,17 @@ a.anchor-link {
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">fiftyone</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fo</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">src.config</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">src.data.loader</span>
+
 <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loader</span><span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.data.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_dataset</span> 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_CLASSES</span> 
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.data.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_CLASSES</span>
 
 <span class="c1"># Prepare dataset will download, filter, split, export, and write metadata</span>
-<span class="n">views</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="n">DEFAULT_CLASSES</span><span class="p">,</span> <span class="n">max_samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">views</span> <span class="o">=</span> <span class="n">prepare_dataset</span><span class="p">(</span><span class="n">classes</span><span class="o">=</span><span class="n">DEFAULT_CLASSES</span><span class="p">,</span> <span class="n">max_samples</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">IMAGE_CNT</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 
 <span class="c1"># Print the number of samples in each split</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Dataset split sizes:"</span><span class="p">)</span>
@@ -7549,7 +7551,7 @@ a.anchor-link {
 <span class="c1"># The views dictionary contains 'train', 'val', 'test' views.</span>
 <span class="c1"># The underlying dataset can be accessed from any view, e.g., views['train']._dataset</span>
 <span class="c1"># This dataset object contains all samples and the tags for splits.</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">views</span><span class="p">[</span><span class="s1">'train'</span><span class="p">]</span><span class="o">.</span><span class="n">_dataset</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">views</span><span class="p">[</span><span class="s2">"train"</span><span class="p">]</span><span class="o">.</span><span class="n">_dataset</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Total samples in the dataset: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dataset name in FiftyOne: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
@@ -7564,7 +7566,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>[INFO] Downloading splits ('train', 'validation', 'test') from coco-2017 (max 20 samples each)…
+<pre>[INFO] Downloading splits ('train', 'validation', 'test') from coco-2017 (max 100 samples each)…
 </pre>
 </div>
 </div>
@@ -7636,7 +7638,59 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
-<iframe allowfullscreen="" frameborder="0" height="800" src="http://0.0.0.0:5151/?notebook=True&amp;subscription=f17c9a5f-7aa4-4904-83df-4cfefed93b9b" width="100%"></iframe>
+<iframe allowfullscreen="" frameborder="0" height="800" src="http://0.0.0.0:5151/?notebook=True&amp;subscription=1ff9eb2d-1cac-4c26-a1ae-6c4513fe5240" width="100%"></iframe>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
+Welcome to
+
+███████╗██╗███████╗████████╗██╗   ██╗ ██████╗ ███╗   ██╗███████╗
+██╔════╝██║██╔════╝╚══██╔══╝╚██╗ ██╔╝██╔═══██╗████╗  ██║██╔════╝
+█████╗  ██║█████╗     ██║    ╚████╔╝ ██║   ██║██╔██╗ ██║█████╗
+██╔══╝  ██║██╔══╝     ██║     ╚██╔╝  ██║   ██║██║╚██╗██║██╔══╝
+██║     ██║██║        ██║      ██║   ╚██████╔╝██║ ╚████║███████╗
+╚═╝     ╚═╝╚═╝        ╚═╝      ╚═╝    ╚═════╝ ╚═╝  ╚═══╝╚══════╝ v1.5.2
+
+If you're finding FiftyOne helpful, here's how you can get involved:
+
+|
+|  ⭐⭐⭐ Give the project a star on GitHub ⭐⭐⭐
+|  https://github.com/voxel51/fiftyone
+|
+|  🚀🚀🚀 Join the FiftyOne Discord community 🚀🚀🚀
+|  https://community.voxel51.com/
+|
+
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>[INFO] 
+Welcome to
+
+███████╗██╗███████╗████████╗██╗   ██╗ ██████╗ ███╗   ██╗███████╗
+██╔════╝██║██╔════╝╚══██╔══╝╚██╗ ██╔╝██╔═══██╗████╗  ██║██╔════╝
+█████╗  ██║█████╗     ██║    ╚████╔╝ ██║   ██║██╔██╗ ██║█████╗
+██╔══╝  ██║██╔══╝     ██║     ╚██╔╝  ██║   ██║██║╚██╗██║██╔══╝
+██║     ██║██║        ██║      ██║   ╚██████╔╝██║ ╚████║███████╗
+╚═╝     ╚═╝╚═╝        ╚═╝      ╚═╝    ╚═════╝ ╚═╝  ╚═══╝╚══════╝ v1.5.2
+
+If you're finding FiftyOne helpful, here's how you can get involved:
+
+|
+|  ⭐⭐⭐ Give the project a star on GitHub ⭐⭐⭐
+|  https://github.com/voxel51/fiftyone
+|
+|  🚀🚀🚀 Join the FiftyOne Discord community 🚀🚀🚀
+|  https://community.voxel51.com/
+|
+
+</pre>
 </div>
 </div>
 </div>

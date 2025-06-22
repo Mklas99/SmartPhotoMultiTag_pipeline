@@ -17,6 +17,7 @@ from sklearn.metrics import confusion_matrix, precision_recall_curve
 from src import config
 from src.data.cocodataset import CocoDataset
 
+plt.rcParams.update({'font.size': 14})
 
 def _tmp_png(prefix: str) -> Path:
     rnd = "".join(random.choices(string.ascii_letters, k=6))

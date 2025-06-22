@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-06-22T18:14:21.091058",
+  "run_id": "c69e56c2cc9c4a4490b1b0ecd41173b9",
+  "experiment": "photo-tagger-experiment",
+  "threshold": 0.5,
+  "num_classes": 6,
+  "classes": [
+    "person",
+    "dog",
+    "car",
+    "bicycle",
+    "cell phone",
+    "laptop"
+  ],
+  "overall_metrics": {
+    "accuracy": 0,
+    "macro_f1": 0.28118344551474833,
+    "weighted_f1": 0.6195141532145721,
+    "roc_auc_micro": 0.9093132810901537
+  },
+  "artifacts_generated": [
+    "classification_report.json",
+    "confusion_matrix.png",
+    "roc_curve.json"
+  ]
+}

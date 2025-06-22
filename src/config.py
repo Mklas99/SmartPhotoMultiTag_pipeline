@@ -7,10 +7,10 @@ from torchvision import transforms as T
 # -------- Project Root --------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-IMAGE_CNT:   int = 1000
+IMAGE_CNT:   int = 10000
 IMAGE_SIZE:  int = 224                   # standard size for ResNet/EfficientNet
-BATCH_SIZE:  int = 32                    # smaller ⇒ noisier grads ⇒ more regularisation
-NUM_WORKERS: int = 4
+BATCH_SIZE:  int = 16                    # smaller ⇒ noisier grads ⇒ more regularisation
+NUM_WORKERS: int = 6
 
 DEFAULT_CLASSES: List[str] = "person", "dog", "car", "bicycle", "cell phone", "laptop"
 
@@ -98,7 +98,7 @@ class OptimConfig:
     gamma: float = 0.5                    # LR will be halved on plateau
     step_size: int = 1                    # ignored by ReduceLROnPlateau
     momentum: float = 0.9                 # (only for SGD)
-    backbone_lr: float = 3e-5             # for staged fine-tuning
+    backbone_lr: float = 1e-5             # for staged fine-tuning
     head_lr: float = 1e-4                 # for staged fine-tuning
     cosine_T_0: int = 5                   # CosineAnnealingWarmRestarts param
     cosine_T_mult: int = 2                # CosineAnnealingWarmRestarts param

@@ -1,0 +1,62 @@
+{
+  "person": {
+    "precision": 0.706766917293233,
+    "recall": 0.8703703703703703,
+    "f1-score": 0.7800829875518672,
+    "support": 432.0
+  },
+  "dog": {
+    "precision": 1.0,
+    "recall": 0.20689655172413793,
+    "f1-score": 0.34285714285714286,
+    "support": 29.0
+  },
+  "car": {
+    "precision": 0.65,
+    "recall": 0.3170731707317073,
+    "f1-score": 0.4262295081967213,
+    "support": 82.0
+  },
+  "bicycle": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1-score": 0.0,
+    "support": 23.0
+  },
+  "cell phone": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1-score": 0.0,
+    "support": 31.0
+  },
+  "laptop": {
+    "precision": 0.5,
+    "recall": 0.08,
+    "f1-score": 0.13793103448275862,
+    "support": 25.0
+  },
+  "micro avg": {
+    "precision": 0.7044673539518901,
+    "recall": 0.6591639871382636,
+    "f1-score": 0.6810631229235881,
+    "support": 622.0
+  },
+  "macro avg": {
+    "precision": 0.4761278195488721,
+    "recall": 0.2457233488043693,
+    "f1-score": 0.28118344551474833,
+    "support": 622.0
+  },
+  "weighted avg": {
+    "precision": 0.643285061528419,
+    "recall": 0.6591639871382636,
+    "f1-score": 0.6195141532145721,
+    "support": 622.0
+  },
+  "samples avg": {
+    "precision": 0.5254010695187166,
+    "recall": 0.47537878787878785,
+    "f1-score": 0.4892602495543671,
+    "support": 622.0
+  }
+}

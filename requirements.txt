@@ -12,3 +12,4 @@ fiftyone
 ipykernel
 black[jupyter]
 seaborn
+nbconvert

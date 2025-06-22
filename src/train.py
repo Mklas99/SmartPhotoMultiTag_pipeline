@@ -21,6 +21,7 @@ from src.config import (
 )
 from src.data.loader import load_data
 from src.models.PhotoTagNet_model import PhotoTagNet
+from src.models.basic_model import BasicMLC
 from src.utils.predict import predict
 from src.utils.plot import (
     save_loss_plot,
@@ -84,7 +85,8 @@ def run_training(
 
         # ----------------------------- MODEL, OPT & SCHEDULER -----------------------------
         print("Building model, optimizer and scheduler...")
-        net = PhotoTagNet(model_cfg, num_classes).to(device)
+        net = BasicMLC(num_classes).to(device)
+        #net = PhotoTagNet(model_cfg, num_classes).to(device)
         opt = _build_optimizer(net, optim_cfg)
         if optim_cfg.scheduler == "cosine_warm_restart":
             scheduler = CosineAnnealingWarmRestarts(opt, T_0=5, T_mult=2)
@@ -197,7 +199,7 @@ def run_training(
             print(f"Loss curve saved to {save_loss_plot_path}")
 
             # Export loss data to a .txt file
-            loss_data_path = RESULTS_DIR / "loss_data.txt"
+            loss_data_path = RESULTS_DIR / "loss_data.csv"
             with open(loss_data_path, "w") as f:
                 f.write("Epoch,TrainLoss,ValLoss\n")
                 for i, (t_loss, v_loss) in enumerate(zip(train_losses, val_losses)):
