@@ -105,8 +105,8 @@ def make_splits(dataset: fo.Dataset, seed: int = 42, label_classes=DEFAULT_CLASS
     random.seed(seed)
 
     # Proportions: Train 70%, Val 10%, Test 20%
-    train_prop = 0.7
-    val_prop = 0.1
+    train_prop = 0.6
+    val_prop = 0.25
     all_sample_ids = list(dataset.values("id"))
 
     # Clear existing split tags to ensure a clean split assignment
@@ -231,6 +231,7 @@ def load_data(
     max_samples: int = IMAGE_CNT,
     batch_size: Optional[int] = BATCH_SIZE,
     num_workers: Optional[int] = NUM_WORKERS,
+    mixup_collate_fn=None,
 ) -> Tuple[CocoDataset, CocoDataset, DataLoader, DataLoader]:
     """Return train & val datasets and loaders using CocoDataset."""
     train_img_dir = DATASET_ROOT / "train" / "data"
@@ -261,8 +262,7 @@ def load_data(
         batch_size=batch_size,
         shuffle=True,  # Shuffle for training
         num_workers=num_workers,
-        collate_fn=collate_fn,
-        # pin_memory=True, # pin_memory=True is useful for GPU training
+        collate_fn=mixup_collate_fn if mixup_collate_fn is not None else collate_fn,
     )
     val_loader = DataLoader(
         val_dataset,
@@ -270,7 +270,6 @@ def load_data(
         shuffle=False,
         num_workers=num_workers,
         collate_fn=collate_fn,
-        # pin_memory=True
     )
     return train_dataset, val_dataset, train_loader, val_loader
 

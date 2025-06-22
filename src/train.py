@@ -1,11 +1,11 @@
 import os
 import time
-
 import mlflow
 import numpy as np
 import torch
 import yaml
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingWarmRestarts
+from torchvision.transforms.v2 import MixUp
 from tqdm.auto import tqdm
 
 from src import config
@@ -21,6 +21,7 @@ from src.config import (
 )
 from src.data.loader import load_data
 from src.models.PhotoTagNet_model import PhotoTagNet
+from src.utils.predict import predict
 from src.utils.plot import (
     save_loss_plot,
     save_sample_preds,
@@ -42,6 +43,8 @@ def run_training(
     train_cfg: TrainConfig = None,
     custom_classes: list[str] | None = config.DEFAULT_CLASSES,
     generate_report: bool = True,
+    use_mixup: bool = False,
+    label_smoothing: float = 0.0,
 ):
 
     # ---- configs ----
@@ -69,21 +72,24 @@ def run_training(
         num_classes = config.get_num_classes(custom_classes)
 
         print("Loading datasets and creating dataloaders...")
+        mixup = MixUp(alpha=0.4) if use_mixup else None
         train_dataset, val_dataset, train_loader, val_loader = load_data(
             classes=custom_classes,
             max_samples=IMAGE_CNT,
             batch_size=BATCH_SIZE,
             num_workers=NUM_WORKERS,
+            mixup_collate_fn=mixup if use_mixup else None,
         )
         print(f"Data loaded. Train batches: {len(train_loader)}, Val batches: {len(val_loader)}")
 
         # ----------------------------- MODEL, OPT & SCHEDULER -----------------------------
         print("Building model, optimizer and scheduler...")
         net = PhotoTagNet(model_cfg, num_classes).to(device)
-        # net = BasicMLC(num_classes).to(device)
-
         opt = _build_optimizer(net, optim_cfg)
-        scheduler = _build_scheduler(opt, optim_cfg)
+        if optim_cfg.scheduler == "cosine_warm_restart":
+            scheduler = CosineAnnealingWarmRestarts(opt, T_0=5, T_mult=2)
+        else:
+            scheduler = _build_scheduler(opt, optim_cfg)
 
         # ----------------------------- LOG PARAMS -----------------------------
         print("Logging parameters to MLflow...")
@@ -96,6 +102,8 @@ def run_training(
             }
         )
 
+        criterion = torch.nn.BCEWithLogitsLoss() if label_smoothing == 0 else torch.nn.BCEWithLogitsLoss(label_smoothing=label_smoothing)
+
         # ----------------------------- TRAIN LOOP -----------------------------
         print("Starting training loop...")
         best_val = -np.inf
@@ -103,12 +111,21 @@ def run_training(
         train_losses, val_losses = [], []
 
         for epoch in tqdm(range(1, train_cfg.epochs + 1)):
+            # --- Staged unfreezing ---
+            if epoch == 3:
+                for name, p in net.backbone.named_parameters():
+                    if "layer4" in name:
+                        p.requires_grad = True
+            if epoch == 6:
+                for p in net.backbone.parameters():
+                    p.requires_grad = True
             train_loss = _run_one_epoch(
                 net,
                 train_loader,
                 opt,
                 device,
                 epoch_nbr=epoch,
+                criterion=criterion,
             )
             val_loss, val_metrics = _validate(
                 net,
@@ -116,6 +133,7 @@ def run_training(
                 device,
                 k=train_cfg.precision_at_k,
                 epoch_nbr=epoch,
+                criterion=criterion,
             )
 
             train_losses.append(train_loss)
@@ -198,5 +216,11 @@ def run_training(
             model_save_path = RESULTS_DIR / "best_model.pt"
             torch.save(torch.load(best_ckpt), model_save_path)
             mlflow.log_artifact(str(model_save_path))
-
+            y_pred_prob, y_val = predict(net, val_loader)
+            y_val_path = RESULTS_DIR / "y_val.npy"
+            y_pred_prob_path = RESULTS_DIR / "y_pred_prob.npy"
+            np.save(y_val_path, y_val)
+            np.save(y_pred_prob_path, y_pred_prob)
+            mlflow.log_artifact(str(y_val_path))
+            mlflow.log_artifact(str(y_pred_prob_path))
         print(f"Best model saved to {model_save_path}")

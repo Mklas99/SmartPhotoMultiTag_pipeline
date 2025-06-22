@@ -34,7 +34,7 @@ def save_loss_plot(train_loss: list, val_loss: list, titel: str = "") -> Path:
     plt.ylabel("Loss")
     plt.title("Loss Plot" + f" - {titel}")
 
-    path = _tmp_png("loss" + titel)
+    path = _tmp_png("lossTrainingValidation")
     plt.savefig(path)
     plt.close()
     return path

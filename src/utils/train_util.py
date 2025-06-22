@@ -64,6 +64,7 @@ def _run_one_epoch(
     opt,  # Optimizer, required if train=True
     device,
     epoch_nbr: int = 0,
+    criterion=None,
 ) -> float:
     net.train()
 
@@ -78,7 +79,10 @@ def _run_one_epoch(
 
         opt.zero_grad()  # clear gradients every batch to make sure they don't overwritten or accumulate
         logits = net(imgs)
-        loss = F.binary_cross_entropy_with_logits(logits, labels)
+        if criterion is not None:
+            loss = criterion(logits, labels)
+        else:
+            loss = F.binary_cross_entropy_with_logits(logits, labels)
         loss.backward()
         opt.step()
 
@@ -96,6 +100,7 @@ def _validate(
     k: int,
     do_plots: bool = True,
     epoch_nbr: int = 0,
+    criterion=None,
 ) -> Tuple[float, Dict[str, float]]:
     net.eval()
     val_running_loss = 0.0
@@ -107,9 +112,11 @@ def _validate(
             imgs, labels = imgs.to(device), labels.to(device)
 
             logits = net(imgs)
-            # Compute binary cross-entropy loss
-            pos_weight = compute_reweight_vector(loader.dataset.get_label_counts())  # Reweighting vector based on label frequencies
-            loss = F.binary_cross_entropy_with_logits(logits, labels, pos_weight=pos_weight.to(device))
+            if criterion is not None:
+                loss = criterion(logits, labels)
+            else:
+                pos_weight = compute_reweight_vector(loader.dataset.get_label_counts())  # Reweighting vector based on label frequencies
+                loss = F.binary_cross_entropy_with_logits(logits, labels, pos_weight=pos_weight.to(device))
             all_losses.append(loss.item())
             val_running_loss += loss.item()
             progress_bar_val.set_postfix(loss=loss.item())

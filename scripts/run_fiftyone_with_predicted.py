@@ -53,6 +53,15 @@ for sample in tqdm(test_view):
     predicted_labels = [LABELS[i] for i, flag in enumerate(preds) if flag]
 
     sample["predictions"] = fo.Classifications(classifications=[fo.Classification(label=label) for label in predicted_labels])
+
+    # Add ground truth labels as 'ground_truth' field
+    gt_labels = set()
+    if sample.ground_truth and hasattr(sample.ground_truth, 'detections'):
+        for det in sample.ground_truth.detections:
+            if hasattr(det, 'label'):
+                gt_labels.add(det.label)
+    sample["ground_truth"] = fo.Classifications(classifications=[fo.Classification(label=label) for label in gt_labels])
+
     sample.save()
 
 # --- Launch FiftyOne App ---

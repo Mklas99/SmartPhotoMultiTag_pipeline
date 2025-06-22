@@ -55,8 +55,19 @@ print(f"Evaluating run {run_id} in experiment {exp.name}")
 
 # ──── Download arrays produced by run_train.py ─────────────────────────
 with tempfile.TemporaryDirectory() as tmpdir:
-    y_val      = np.load(client.download_artifacts(run_id, "y_val.npy",       tmpdir))
-    y_pred_prob= np.load(client.download_artifacts(run_id, "y_pred_prob.npy", tmpdir))
+    def safe_download(run_id, artifact_path, tmpdir):
+        local_path = client.download_artifacts(run_id, artifact_path, tmpdir)
+        if local_path is None:
+            raise SystemExit(f"Artifact '{artifact_path}' not found in run {run_id}.")
+        return local_path
+
+    try:
+        y_val_path = safe_download(run_id, "y_val.npy", tmpdir)
+        y_pred_prob_path = safe_download(run_id, "y_pred_prob.npy", tmpdir)
+        y_val = np.load(y_val_path)
+        y_pred_prob = np.load(y_pred_prob_path)
+    except Exception as e:
+        raise SystemExit(f"Failed to download or load artifacts: {e}")
 
 # ──── Compute metrics & visualisations ─────────────────────────────────
 threshold = 0.5
