@@ -82,14 +82,15 @@ jobs:
       # 4 Run the training / evaluation pipeline
       - name: Run pipeline
         env:
-          MAX_SAMPLES: ${{ inputs.max-samples }}
-          REPORT:      ${{ inputs.report }}
-          IMAGE_SIZE:  ${{ inputs['image-size'] }}
-          BATCH_SIZE:  ${{ inputs['batch-size'] }}
-          NUM_WORKERS: ${{ inputs['num-workers'] }}
-          BACKBONE:    ${{ inputs.backbone }}
-          EPOCHS:      ${{ inputs.epochs }}
-          EARLY_STOP_PATIENCE: ${{ inputs['early-stop-patience'] }}
+          MAX_SAMPLES: ${{ github.event.inputs.max-samples || '500' }}
+          REPORT:      ${{ github.event.inputs.report      || 'true' }}
+          IMAGE_SIZE:  ${{ github.event.inputs.image-size || '224' }}
+          BATCH_SIZE:  ${{ github.event.inputs.batch-size || '16' }}
+          NUM_WORKERS: ${{ github.event.inputs.num-workers || '6' }}
+          BACKBONE:    ${{ github.event.inputs.backbone || 'resnet50' }}
+          EPOCHS:      ${{ github.event.inputs.epochs || '30' }}
+          EARLY_STOP_PATIENCE: ${{ github.event.inputs.early-stop-patience || '7' }}
+
         run: |
           $reportFlag = if ($env:REPORT -eq 'true') { '--report' } else { '' }
           python scripts/run_pipeline.py `
