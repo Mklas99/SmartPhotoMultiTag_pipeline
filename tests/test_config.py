@@ -31,9 +31,9 @@ def test_classes_present():
 
 def test_model_config_defaults():
     cfg = ModelConfig()
-    assert cfg.backbone == "resnet18"
+    assert cfg.backbone == "resnet50"
     assert cfg.pretrained is True
-    assert cfg.freeze_backbone is False
+    assert cfg.freeze_backbone is True
     assert 0.0 <= cfg.dropout_rate <= 1.0
     assert 0.0 <= cfg.dropout_rate <= 1.0
 
@@ -43,7 +43,7 @@ def test_optim_config_defaults():
     assert cfg.optim in ["adamw", "sgd"]
     assert cfg.lr > 0
     assert cfg.weight_decay >= 0
-    assert cfg.scheduler in ["none", "step", "plateau"]
+    assert cfg.scheduler in ["none", "step", "plateau", "cosine", "cosine_warm_restart"]
 
 
 def test_get_num_classes_default():
