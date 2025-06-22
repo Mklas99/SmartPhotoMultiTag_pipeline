@@ -2,81 +2,97 @@ name: CI Win self-hosted
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
+
   workflow_dispatch:
     inputs:
       max-samples:
-        description: Limit training samples
-        default: "50"
+        description: "Limit training samples"
+        required: false
+        default: "500"
+
       report:
-        type: boolean
-        description: Generate evaluation report?
+        description: "Generate evaluation report?"
+        type: boolean          # <-- valid input types are boolean | choice | environment | string
+        required: false
         default: true
+
       image-size:
-        description: Size of the images
-        default: "100"
+        description: "Size of the images"
+        required: false
+        default: "224"
+
       batch-size:
-        description: Batch size for training
-        default: "32"
+        description: "Batch size for training"
+        required: false
+        default: "16"
+
       num-workers:
-        description: Number of workers for data loading
-        default: "8"
+        description: "Number of workers for data loading"
+        required: false
+        default: "6"
+
       backbone:
-        description: Model backbone
-        default: "resnet18"
+        description: "Model backbone"
         type: choice
         options:
-        - resnet18
-        - resnet50
-        - efficientnet_b0
+          - resnet18
+          - resnet50
+          - efficientnet_b0
+        required: false
+        default: resnet50
+
       epochs:
-        description: Number of training epochs
+        description: "Number of training epochs"
+        required: false
         default: "30"
+
       early-stop-patience:
-        description: Patience for early stopping
+        description: "Patience for early stopping"
+        required: false
         default: "7"
 
 jobs:
   run-pipeline:
-    runs-on:
-      - self-hosted           
-      - Windows
-                  
+    # Exact labels must match the runner service: first "self-hosted", then OS label(s)
+    runs-on: [ self-hosted, Windows ]
+
     defaults:
       run:
         shell: powershell
 
     steps:
-      # Check out repository ⇒ $GITHUB_WORKSPACE
-      - uses: actions/checkout@v4
+      # 1 Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Set up Python
-      - uses: actions/setup-python@v5
+      # 2 Set up Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
           allow-download: false
 
-      # Install third-party deps + local package
+      # 3 Install third-party and local deps
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -e .        # editable install registers src/
+          pip install -e .
 
-      # Run the pipeline
+      # 4 Run the training / evaluation pipeline
       - name: Run pipeline
         env:
-          MAX_SAMPLES: ${{ github.event.inputs.max-samples || '50' }}
-          REPORT:      ${{ github.event.inputs.report      || 'false' }}
-          IMAGE_SIZE:  ${{ github.event.inputs.image-size || '100' }}
-          BATCH_SIZE:  ${{ github.event.inputs.batch-size || '32' }}
-          NUM_WORKERS: ${{ github.event.inputs.num-workers || '8' }}
-          BACKBONE:    ${{ github.event.inputs.backbone || 'resnet50' }}
-          EPOCHS:      ${{ github.event.inputs.epochs || '30' }}
-          EARLY_STOP_PATIENCE: ${{ github.event.inputs.early-stop-patience || '7' }}
+          MAX_SAMPLES: ${{ inputs.max-samples }}
+          REPORT:      ${{ inputs.report }}
+          IMAGE_SIZE:  ${{ inputs['image-size'] }}
+          BATCH_SIZE:  ${{ inputs['batch-size'] }}
+          NUM_WORKERS: ${{ inputs['num-workers'] }}
+          BACKBONE:    ${{ inputs.backbone }}
+          EPOCHS:      ${{ inputs.epochs }}
+          EARLY_STOP_PATIENCE: ${{ inputs['early-stop-patience'] }}
         run: |
           $reportFlag = if ($env:REPORT -eq 'true') { '--report' } else { '' }
-
           python scripts/run_pipeline.py `
             --max-samples $env:MAX_SAMPLES `
             --image-size $env:IMAGE_SIZE `
@@ -86,8 +102,8 @@ jobs:
             --epochs $env:EPOCHS `
             --early-stop-patience $env:EARLY_STOP_PATIENCE `
             $reportFlag
-      
-      # Upload training artifacts
+
+      # 5 Upload useful artifacts
       - name: Upload training artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -97,15 +113,11 @@ jobs:
             results/
             mlruns/
 
-      - name: Evaluate & log report
-        run: |
-          python scripts/evaluate_last_run.py       
+      # 6 Post-training evaluation
+      - name: Evaluate last run
+        run: python scripts/evaluate_last_run.py
 
-      - name: Render notebook
-        run: |
-          jupyter nbconvert --execute notebooks/run_report.ipynb --to notebook
-
-
-
-
-
+      # 7 Render Jupyter report
+      - name: Render notebook
+        run: |
+          jupyter nbconvert --execute notebooks/run_report.ipynb --to notebook
