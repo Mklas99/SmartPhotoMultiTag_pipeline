@@ -78,7 +78,7 @@ val_transforms = T.Compose([
 # -------- Config dataclasses --------
 @dataclass
 class ModelConfig:
-    backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet50"
+    backbone: Literal["resnet18", "resnet50", "efficientnet_b0"] = "resnet18"
     pretrained: bool = True               # keep ImageNet weights
     freeze_backbone: bool = True          # <-- freeze for now; unfreeze later if needed
     dropout_rate: float = 0.3             # ↑ stronger regularisation
