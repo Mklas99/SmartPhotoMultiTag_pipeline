@@ -14,3 +14,8 @@ class BasicMLC(nn.Module):
     def forward(self, x):
         x = self.resnet(x)
         return x
+
+    @property
+    def backbone(self):
+        """Alias kept for backward-compatibility with training code."""
+        return self.resnet
