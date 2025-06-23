@@ -17,7 +17,11 @@ from src.utils.plot import save_confusion_matrix, save_roc_curves
 
 
 def _build_optimizer(net: nn.Module, cfg: OptimConfig):
-    params = net.trainable_parameters()
+    params = (
+        net.trainable_parameters()   # preferred
+        if hasattr(net, "trainable_parameters")
+        else (p for p in net.parameters() if p.requires_grad)
+    )
     if cfg.optim == "adamw":
         # AdamW = Adam + "decoupled" weight-decay (better for modern nets) adaptable learning rate
         return AdamW(params, lr=cfg.lr, betas=cfg.betas)
