@@ -7,7 +7,7 @@ from torchvision import transforms as T
 # -------- Project Root --------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-IMAGE_CNT:   int = 10000
+IMAGE_CNT:   int = 3000
 IMAGE_SIZE:  int = 224                   # standard size for ResNet/EfficientNet
 BATCH_SIZE:  int = 16                    # smaller ⇒ noisier grads ⇒ more regularisation
 NUM_WORKERS: int = 6
