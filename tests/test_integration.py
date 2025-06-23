@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test script to verify the integration between evaluate_last_run.py and run_report.ipynb
 """
@@ -121,4 +120,4 @@ def test_integration():
         return False
 
 if __name__ == "__main__":
-    test_integration()
+    #test_integration()
