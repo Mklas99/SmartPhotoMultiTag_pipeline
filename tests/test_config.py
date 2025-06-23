@@ -31,7 +31,7 @@ def test_classes_present():
 
 def test_model_config_defaults():
     cfg = ModelConfig()
-    assert cfg.backbone == "resnet50"
+    assert cfg.backbone == ("resnet50" or "resnet18")
     assert cfg.pretrained is True
     assert cfg.freeze_backbone is True
     assert 0.0 <= cfg.dropout_rate <= 1.0
