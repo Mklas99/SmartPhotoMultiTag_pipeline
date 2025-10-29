@@ -84,7 +84,7 @@ class ModelConfig:
     dropout_rate: float = 0.3             # ↑ stronger regularisation
     staged_unfreeze_layer: str = "layer4" # which layer to unfreeze at stage 2
     staged_unfreeze_epoch: int = 4       # epoch to unfreeze last block
-    full_unfreeze_epoch: int = 5         # epoch to unfreeze all
+    full_unfreeze_epoch: int = 6         # epoch to unfreeze all
 
 
 @dataclass

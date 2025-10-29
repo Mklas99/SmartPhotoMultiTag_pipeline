@@ -85,8 +85,8 @@ def run_training(
 
         # ----------------------------- MODEL, OPT & SCHEDULER -----------------------------
         print("Building model, optimizer and scheduler...")
-        net = BasicMLC(num_classes).to(device)
-        #net = PhotoTagNet(model_cfg, num_classes).to(device)
+        #net = BasicMLC(num_classes).to(device)
+        net = PhotoTagNet(model_cfg, num_classes).to(device)
         opt = _build_optimizer(net, optim_cfg)
         if optim_cfg.scheduler == "cosine_warm_restart":
             scheduler = CosineAnnealingWarmRestarts(opt, T_0=5, T_mult=2)

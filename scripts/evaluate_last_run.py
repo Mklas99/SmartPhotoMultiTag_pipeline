@@ -140,11 +140,14 @@ sns.heatmap(
     cmap="Blues",
     xticklabels=["Negative", "Positive"],
     yticklabels=["Negative", "Positive"],
-    cbar_kws={'label': 'Count'}
+    cbar_kws={'label': 'Count'},
+    annot_kws={"size": 18, "weight": "bold"}
 )
-plt.xlabel("Predicted", fontsize=14, fontweight='bold')
-plt.ylabel("Actual", fontsize=14, fontweight='bold')
-plt.title("Overall Confusion Matrix (All Labels Combined)", fontsize=16, fontweight='bold')
+plt.xlabel("Predicted", fontsize=16, fontweight='bold')
+plt.ylabel("Actual", fontsize=16, fontweight='bold')
+#plt.title("Overall Confusion Matrix (All Labels Combined)", fontsize=16, fontweight='bold')
+plt.xticks(fontsize=16)
+plt.yticks(fontsize=16)
 plt.tight_layout()
 
 confusion_matrix_path = os.path.join(results_dir, "confusion_matrix.png")
@@ -167,11 +170,12 @@ for i, label in enumerate(label_names):
         cmap="Blues",
         xticklabels=[f"Not {label}", label],
         yticklabels=[f"Not {label}", label],
-        cbar_kws={'label': 'Count'}
+        cbar_kws={'label': 'Count'},
+        annot_kws={"size": 18, "weight": "bold"}
     )
-    plt.xlabel("Predicted", fontsize=14, fontweight='bold')
-    plt.ylabel("Actual", fontsize=14, fontweight='bold')
-    plt.title(f"Confusion Matrix: {label.title()}", fontsize=16, fontweight='bold')
+    plt.xlabel("Predicted", fontsize=16, fontweight='bold')
+    plt.ylabel("Actual",    fontsize=16, fontweight='bold')
+    plt.title(f"Confusion Matrix: {label.title()}", fontsize=18, fontweight='bold')
     plt.tight_layout()
     plt.savefig(confusion_matrix_img_path, dpi=300, bbox_inches='tight')
     plt.close()

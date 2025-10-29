@@ -25,7 +25,7 @@ def main():
         default=default_train_cfg.epochs,
         help=f"Number of training epochs (default: {default_train_cfg.epochs})",
     )
-    p.add_argument(
+    p.add_argument(5
         "--backbone",
         choices=["resnet18", "resnet50", "efficientnet_b0"],
         default=default_model_cfg.backbone,
