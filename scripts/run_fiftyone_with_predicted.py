@@ -41,12 +41,16 @@ model.eval()
 transform = train_transforms
 
 # Load FiftyOne dataset
-print("Launch FifyOne...")
+print("Loading about 100 images...")
 dataset = fo.Dataset.from_dir(
     dataset_dir=TEST_FILES_DIR,
     dataset_type=fot.COCODetectionDataset,
     classes=LABELS,
 )
+
+# Limit to 100 samples
+if len(dataset) > 100:
+    dataset = dataset.take(500)
 
 
 ACTUAL_COLOR = "#3cb44b"           # green for actual-only
@@ -84,6 +88,9 @@ for sample in tqdm(dataset):
         for det in sample.detections.detections:
             actual_labels.add(det.label)
 
+    # Save actual labels as a list for easier filtering/viewing
+    sample["actual_labels"] = list(actual_labels)
+
     # Assign colors for actual labels
     actual_classifications = []
     for label in actual_labels:
@@ -96,14 +103,20 @@ for sample in tqdm(dataset):
         for label in predicted_labels
     ]
 
-    sample["detections"] = fo.Classifications(classifications=actual_classifications)
+    # Only set the predictions field; do not overwrite detections
     sample["predictions(PhotoNet_10000)"] = fo.Classifications(classifications=predicted_classifications)
     sample.save()
 
 # Build a pretty view: show filepath, detections, predictions, and predicted_labels
 test_view = (
     dataset
-    .select_fields(["filepath", "detections", "predictions(PhotoNet_10000)", "predicted_labels"])
+    .select_fields([
+        "filepath",
+        "detections",
+        "actual_labels",           # <-- add this line
+        "predictions(PhotoNet_10000)",
+        "predicted_labels"
+    ])
     .sort_by("filepath")
 )
 

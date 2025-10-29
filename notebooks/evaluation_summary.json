@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-06-23T16:55:38.211405",
-  "run_id": "fb30c5424a7d43cbae4de5cf733da822",
+  "timestamp": "2025-06-23T19:30:23.022711",
+  "run_id": "4cd46de433fc4b218b553f3ec576dbd1",
   "experiment": "photo-tagger-experiment",
   "threshold": 0.5,
   "num_classes": 6,
@@ -14,9 +14,9 @@
   ],
   "overall_metrics": {
     "accuracy": 0,
-    "macro_f1": 0.38990685933336744,
-    "weighted_f1": 0.5758644970655413,
-    "roc_auc_micro": 0.9288904414876338
+    "macro_f1": 0.4320635244801496,
+    "weighted_f1": 0.6198724626805833,
+    "roc_auc_micro": 0.9187363758248775
   },
   "artifacts_generated": [
     "classification_report.json",

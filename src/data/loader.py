@@ -104,9 +104,9 @@ def make_splits(dataset: fo.Dataset, seed: int = 42, label_classes=DEFAULT_CLASS
     logger.info("Creating train/val/test tags (seed=%d)…", seed)
     random.seed(seed)
 
-    # Proportions: Train 70%, Val 10%, Test 20%
-    train_prop = 0.6
-    val_prop = 0.25
+    # Proportions: Train 70%, Val 20%, Test 10%
+    train_prop = 0.7
+    val_prop = 0.2
     all_sample_ids = list(dataset.values("id"))
 
     # Clear existing split tags to ensure a clean split assignment

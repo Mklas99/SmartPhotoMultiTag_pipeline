@@ -32,6 +32,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from datetime import datetime
+import shutil
 
 # ──── CLI args ─────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
@@ -74,10 +75,25 @@ except Exception as e:
 # ──── Download arrays produced by run_train.py ─────────────────────────
 with tempfile.TemporaryDirectory() as tmpdir:
     def safe_download(run_id, artifact_path, tmpdir):
-        local_path = client.download_artifacts(run_id, artifact_path, tmpdir)
-        if local_path is None:
+        try:
+            # MLflow may return a directory if artifact_path is a file at the root
+            result = client.download_artifacts(run_id, artifact_path, tmpdir)
+            if os.path.isdir(result):
+                # If it's a directory, look for the file inside it
+                candidate = os.path.join(result, os.path.basename(artifact_path))
+                if os.path.exists(candidate):
+                    return candidate
+                # If not found, raise error
+                raise FileNotFoundError(f"{artifact_path} not found in {result}")
+            return result
+        except Exception:
+            # Fallback: try to copy directly from mlruns if available
+            local_path = f"mlruns/{exp.experiment_id}/{run_id}/artifacts/{artifact_path}"
+            if os.path.exists(local_path):
+                dest = os.path.join(tmpdir, os.path.basename(artifact_path))
+                shutil.copy(local_path, dest)
+                return dest
             raise SystemExit(f"Artifact '{artifact_path}' not found in run {run_id}.")
-        return local_path
 
     try:
         y_val_path = safe_download(run_id, "y_val.npy", tmpdir)
